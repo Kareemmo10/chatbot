@@ -17,4 +17,12 @@
   animation: slideIn 0.5s ease-out forwards;
 }
 
+@media (max-width: 640px) {
+  table td, table th {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+
 
