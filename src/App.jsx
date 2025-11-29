@@ -575,14 +575,14 @@
 
 
 import React, { useState, useRef, useEffect } from "react";
-import { Bot, Send, Image as ImageIcon, User } from "lucide-react";
+import { Bot, Send, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [invoices, setInvoices] = useState([]); // السجل
+  const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -599,7 +599,6 @@ export default function App() {
 
     setMessages((prev) => [...prev, { sender: "user", text: input }]);
 
-    // رد تلقائي مؤقت بدون API
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
@@ -627,27 +626,47 @@ export default function App() {
     uploadToAPI(file);
   };
 
-  // Handle uploading to your API
+  // Handle uploading to API
   const uploadToAPI = async (file) => {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("file", file); // اسم البراميتر لازم يكون "file"
+    // اسم البراميتر لازم يكون اللي الباك مستنيه
+    formData.append("invoice", file);
 
     try {
       const response = await fetch(
-        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
+        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices",
         {
           method: "POST",
           body: formData,
         }
       );
 
-      if (!response.ok) throw new Error("API Error");
+      const text = await response.text();
+      console.log("Response Status:", response.status);
+      console.log("Response Body:", text);
 
-      const data = await response.json();
+      if (!response.ok) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            text: `❌ فشل الاتصال بالباك – Status: ${response.status}`,
+          },
+        ]);
+        setLoading(false);
+        return;
+      }
 
-      // نضيف رد البوت
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.log("Response is not JSON, raw:", text);
+      }
+
+      // رد البوت
       setMessages((prev) => [
         ...prev,
         {
@@ -669,11 +688,12 @@ export default function App() {
         },
       ]);
     } catch (err) {
+      console.log("Upload Error:", err);
       setMessages((prev) => [
         ...prev,
         {
           sender: "bot",
-          text: "❌ فشل الاتصال بالباك – تأكد إنه شغال.",
+          text: "❌ حدث خطأ أثناء الاتصال بالباك.",
         },
       ]);
     }
