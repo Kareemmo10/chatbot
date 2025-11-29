@@ -631,70 +631,59 @@ export default function App() {
     setLoading(true);
 
     const formData = new FormData();
-    // اسم البراميتر لازم يكون اللي الباك مستنيه
-    formData.append("invoice", file);
+    formData.append("file", file); // تأكد إن الباك يستنى "file"
 
     try {
       const response = await fetch(
-        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices",
+        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
         {
           method: "POST",
           body: formData,
         }
       );
 
-      const text = await response.text();
-      console.log("Response Status:", response.status);
-      console.log("Response Body:", text);
-
-      if (!response.ok) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: "bot",
-            text: `❌ فشل الاتصال بالباك – Status: ${response.status}`,
-          },
-        ]);
-        setLoading(false);
-        return;
-      }
-
       let data = {};
       try {
-        data = JSON.parse(text);
-      } catch {
-        console.log("Response is not JSON, raw:", text);
+        data = await response.json();
+      } catch (err) {
+        console.log("Response is not JSON:", err);
       }
 
-      // رد البوت
-      setMessages((prev) => [
-        ...prev,
-        {
-          sender: "bot",
-          text: "✔ تم رفع الفاتورة ومعالجتها بنجاح",
-        },
-      ]);
+      console.log("Response Status:", response.status);
+      console.log("Response Data:", data);
 
-      // نضيف للسجل
-      setInvoices((prev) => [
-        ...prev,
-        {
-          id: data.id || Date.now(),
-          type: data.type || "غير محدد",
-          amount: data.amount || "غير معروف",
-          status: data.status || "Completed",
-          date: data.date || new Date().toISOString().split("T")[0],
-          imageUrl: data.imageUrl || null,
-        },
-      ]);
+      // لو الرد فيه رسالة خطأ من الباك نعرضها
+      if (data.errors || response.status !== 200) {
+        const errorMsg = data.title || JSON.stringify(data);
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: `❌ خطأ من الباك: ${errorMsg}` },
+        ]);
+      } else {
+        // رد البوت
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: "✔ تم رفع الفاتورة ومعالجتها بنجاح" },
+        ]);
+
+        // نضيف للسجل
+        setInvoices((prev) => [
+          ...prev,
+          {
+            id: data.id || Date.now(),
+            type: data.type || "غير محدد",
+            amount: data.amount || "غير معروف",
+            status: data.status || "Completed",
+            date: data.date || new Date().toISOString().split("T")[0],
+            imageUrl: data.imageUrl || null,
+          },
+        ]);
+      }
     } catch (err) {
       console.log("Upload Error:", err);
       setMessages((prev) => [
         ...prev,
-        {
-          sender: "bot",
-          text: "❌ حدث خطأ أثناء الاتصال بالباك.",
-        },
+        { sender: "bot", text: "❌ حدث خطأ أثناء الاتصال بالباك." },
       ]);
     }
 
@@ -818,3 +807,4 @@ export default function App() {
     </div>
   );
 }
+
