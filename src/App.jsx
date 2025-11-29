@@ -636,7 +636,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        "https://localhost:7266/api/Invoices/upload",
+        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
         {
           method: "POST",
           body: formData,
