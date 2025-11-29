@@ -3,7 +3,7 @@ import { Bot, Send, Image as ImageIcon, User, X, RefreshCcw, Download } from "lu
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas"; // مهم
+import html2canvas from "html2canvas";
 
 // --- كتابة تدريجية ---
 const AnimatedText = ({ text, speed = 25 }) => {
@@ -58,7 +58,6 @@ const App = () => {
         )}
       </main>
 
-      {/* Toast Container */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -113,6 +112,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => (
 const ChatInterface = ({ messages, setMessages, addInvoice }) => {
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null); // للمعاينة قبل الإرسال
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -136,27 +136,33 @@ const ChatInterface = ({ messages, setMessages, addInvoice }) => {
     }, 1500);
   };
 
+  // --- رفع الصور مع المعاينة ---
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-
     reader.onloadend = () => {
       const imageUrl = reader.result;
-      setMessages((prev) => [...prev, { id: Date.now(), sender: "user", image: imageUrl, type: "image" }]);
-      setIsTyping(true);
-
-      setTimeout(() => {
-        setIsTyping(false);
-        setMessages((prev) => [
-          ...prev,
-          { id: Date.now() + 1, sender: "bot", text: "تم استلام الصورة. حدد نوع الفاتورة:", type: "options", relatedImage: imageUrl },
-        ]);
-      }, 1000);
+      setPreviewImage(imageUrl); // عرض المعاينة بدلاً من الإرسال مباشرة
     };
-
     reader.readAsDataURL(file);
     e.target.value = null;
+  };
+
+  const sendPreviewImage = () => {
+    if (!previewImage) return;
+    setMessages((prev) => [...prev, { id: Date.now(), sender: "user", image: previewImage, type: "image" }]);
+    setIsTyping(true);
+    const tempImage = previewImage;
+    setPreviewImage(null);
+
+    setTimeout(() => {
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, sender: "bot", text: "تم استلام الصورة. حدد نوع الفاتورة:", type: "options", relatedImage: tempImage },
+      ]);
+    }, 1000);
   };
 
   const handleOptionClick = (option, relatedImage) => {
@@ -192,6 +198,48 @@ const ChatInterface = ({ messages, setMessages, addInvoice }) => {
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+        {/* --- منطقة المعاينة أسفل الشات مباشرة --- */}
+{previewImage && (
+  <div className="fixed bottom-16 left-0 w-full flex justify-center px-4 z-50">
+    <div className="flex flex-col items-center bg-white p-4 rounded-xl shadow-2xl w-full max-w-lg animate-slideIn">
+      
+      {/* معاينة الصورة */}
+      <div className="w-full border border-gray-200 rounded-lg overflow-hidden shadow-lg">
+        <img
+          src={previewImage}
+          alt="معاينة"
+          className="w-full h-auto max-h-96 object-contain"
+        />
+      </div>
+
+      {/* أزرار الإرسال والإلغاء */}
+      <div className="flex gap-3 w-full mt-3">
+        <button
+          onClick={sendPreviewImage}
+          className="flex-1 bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          إرسال
+        </button>
+        <button
+          onClick={() => setPreviewImage(null)}
+          className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded"
+        >
+          إلغاء
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
+
+
+
+
+
+
+
         {messages.map((msg) => (
           <div key={msg.id} className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`flex max-w-[85%] md:max-w-[70%] ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"} gap-3`}>
@@ -263,7 +311,6 @@ const InvoicesDashboard = ({ invoices }) => {
     const element = document.getElementById(`invoice-${selectedInvoice.id}`);
     if (!element) return;
 
-    // استخدام html2canvas
     const canvas = await html2canvas(element, { scale: 2, useCORS: true, scrollY: -window.scrollY });
     const imgData = canvas.toDataURL("image/png");
 
@@ -310,7 +357,6 @@ const InvoicesDashboard = ({ invoices }) => {
         </div>
       </div>
 
-      {/* --- Modal --- */}
       {selectedInvoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white w-[90%] md:w-2/3 lg:w-1/2 rounded-xl shadow-lg relative p-6">
@@ -329,15 +375,14 @@ const InvoicesDashboard = ({ invoices }) => {
                 <p><strong>المبلغ:</strong> {selectedInvoice.amount}</p>
                 <p><strong>الحالة:</strong> {selectedInvoice.status === "completed" ? "مكتمل" : "معالجة AI"}</p>
               </div>
-            </div>
-
-            <div className="flex gap-4">
-              <button onClick={handleReanalyze} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                <RefreshCcw size={16} /> إعادة تحليل
-              </button>
-              <button onClick={handleDownloadPDF} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                <Download size={16} /> تحميل PDF
-              </button>
+              <div className="flex gap-3">
+                <button onClick={handleReanalyze} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2">
+                  <RefreshCcw size={16} /> إعادة التحليل
+                </button>
+                <button onClick={handleDownloadPDF} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2">
+                  <Download size={16} /> تنزيل PDF
+                </button>
+              </div>
             </div>
           </div>
         </div>
