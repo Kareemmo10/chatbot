@@ -581,7 +581,6 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -593,7 +592,7 @@ export default function App() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Handle sending message (text only)
+  // إرسال رسالة نصية
   const sendMessage = () => {
     if (!input.trim()) return;
 
@@ -609,12 +608,10 @@ export default function App() {
     setInput("");
   };
 
-  // Handle image selection
+  // اختيار صورة
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    setSelectedImage(file);
 
     const tempUrl = URL.createObjectURL(file);
 
@@ -626,66 +623,64 @@ export default function App() {
     uploadToAPI(file);
   };
 
-  // Handle uploading to API
+  // رفع الصورة للباك
   const uploadToAPI = async (file) => {
-  setLoading(true);
+    setLoading(true);
 
-  const formData = new FormData();
-  formData.append("image", file); // <-- هنا اسم البراميتر "image"
+    const formData = new FormData();
+    formData.append("file", file); // صححنا اسم البراميتر
 
-  try {
-    const response = await fetch(
-      "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    let data = {};
     try {
-      data = await response.json();
+      const response = await fetch(
+        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
+        { method: "POST", body: formData }
+      );
+
+      const text = await response.text();
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.log("Response is not JSON, using raw text");
+      }
+
+      console.log("Response Status:", response.status);
+      console.log("Response Data:", data);
+
+      if (!response.ok || data.errors) {
+        const errorMsg = data.title || JSON.stringify(data);
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: `❌ خطأ من الباك: ${errorMsg}` },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: "✔ تم رفع الفاتورة ومعالجتها بنجاح" },
+        ]);
+
+        setInvoices((prev) => [
+          ...prev,
+          {
+            id: data.id || Date.now(),
+            type: data.type || "غير محدد",
+            amount: data.amount || "غير معروف",
+            status: data.status || "Completed",
+            date: data.date || new Date().toISOString().split("T")[0],
+            imageUrl: data.imageUrl || null,
+          },
+        ]);
+      }
     } catch (err) {
-      console.log("Response is not JSON:", err);
-    }
-
-    console.log("Response Status:", response.status);
-    console.log("Response Data:", data);
-
-    if (data.errors || response.status !== 200) {
-      const errorMsg = data.title || JSON.stringify(data);
+      console.log("Upload Error:", err);
       setMessages((prev) => [
         ...prev,
-        { sender: "bot", text: `❌ خطأ من الباك: ${errorMsg}` },
-      ]);
-    } else {
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "✔ تم رفع الفاتورة ومعالجتها بنجاح" },
-      ]);
-
-      setInvoices((prev) => [
-        ...prev,
-        {
-          id: data.id || Date.now(),
-          type: data.type || "غير محدد",
-          amount: data.amount || "غير معروف",
-          status: data.status || "Completed",
-          date: data.date || new Date().toISOString().split("T")[0],
-          imageUrl: data.imageUrl || null,
-        },
+        { sender: "bot", text: "❌ حدث خطأ أثناء الاتصال بالباك." },
       ]);
     }
-  } catch (err) {
-    console.log("Upload Error:", err);
-    setMessages((prev) => [
-      ...prev,
-      { sender: "bot", text: "❌ حدث خطأ أثناء الاتصال بالباك." },
-    ]);
-  }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -804,4 +799,3 @@ export default function App() {
     </div>
   );
 }
-
