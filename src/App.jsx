@@ -574,228 +574,411 @@
 // export default App;
 
 
+
+
+
+// import React, { useState, useRef, useEffect } from "react";
+// import { Bot, Send, Image as ImageIcon } from "lucide-react";
+// import { motion, AnimatePresence } from "framer-motion";
+
+// export default function App() {
+//   const [messages, setMessages] = useState([]);
+//   const [input, setInput] = useState("");
+//   const [invoices, setInvoices] = useState([]);
+//   const [loading, setLoading] = useState(false);
+
+//   const fileInputRef = useRef(null);
+//   const chatEndRef = useRef(null);
+
+//   // Scroll to bottom
+//   useEffect(() => {
+//     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//   }, [messages]);
+
+//   // إرسال رسالة نصية
+//   const sendMessage = () => {
+//     if (!input.trim()) return;
+
+//     setMessages((prev) => [...prev, { sender: "user", text: input }]);
+
+//     setTimeout(() => {
+//       setMessages((prev) => [
+//         ...prev,
+//         { sender: "bot", text: "تم استلام رسالتك 👌" },
+//       ]);
+//     }, 600);
+
+//     setInput("");
+//   };
+
+//   // اختيار صورة
+//   const handleImageSelect = (e) => {
+//     const file = e.target.files[0];
+//     if (!file) return;
+
+//     const tempUrl = URL.createObjectURL(file);
+
+//     setMessages((prev) => [
+//       ...prev,
+//       { sender: "user", image: tempUrl, text: "📄 صورة فاتورة" },
+//     ]);
+
+//     uploadToAPI(file);
+//   };
+
+//   // رفع الصورة للباك
+//   const uploadToAPI = async (file) => {
+//     setLoading(true);
+
+//     const formData = new FormData();
+//     formData.append("file", file); // صححنا اسم البراميتر
+
+//     try {
+//       const response = await fetch(
+//         "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
+//         { method: "POST", body: formData }
+//       );
+
+//       const text = await response.text();
+//       let data = {};
+//       try {
+//         data = JSON.parse(text);
+//       } catch {
+//         console.log("Response is not JSON, using raw text");
+//       }
+
+//       console.log("Response Status:", response.status);
+//       console.log("Response Data:", data);
+
+//       if (!response.ok || data.errors) {
+//         const errorMsg = data.title || JSON.stringify(data);
+//         setMessages((prev) => [
+//           ...prev,
+//           { sender: "bot", text: `❌ خطأ من الباك: ${errorMsg}` },
+//         ]);
+//       } else {
+//         setMessages((prev) => [
+//           ...prev,
+//           { sender: "bot", text: "✔ تم رفع الفاتورة ومعالجتها بنجاح" },
+//         ]);
+
+//         setInvoices((prev) => [
+//           ...prev,
+//           {
+//             id: data.id || Date.now(),
+//             type: data.type || "غير محدد",
+//             amount: data.amount || "غير معروف",
+//             status: data.status || "Completed",
+//             date: data.date || new Date().toISOString().split("T")[0],
+//             imageUrl: data.imageUrl || null,
+//           },
+//         ]);
+//       }
+//     } catch (err) {
+//       console.log("Upload Error:", err);
+//       setMessages((prev) => [
+//         ...prev,
+//         { sender: "bot", text: "❌ حدث خطأ أثناء الاتصال بالباك." },
+//       ]);
+//     }
+
+//     setLoading(false);
+//   };
+
+//   return (
+//     <div className="flex h-screen bg-gray-100">
+//       {/* Sidebar – Record */}
+//       <div className="w-72 bg-white shadow-lg p-5 overflow-y-auto">
+//         <h2 className="text-xl font-bold mb-4">📁 سجل الفواتير</h2>
+
+//         {invoices.length === 0 && (
+//           <p className="text-gray-500 text-sm">لا يوجد فواتير بعد.</p>
+//         )}
+
+//         {invoices.map((inv) => (
+//           <div
+//             key={inv.id}
+//             className="p-3 mb-3 bg-gray-50 rounded-lg border shadow-sm"
+//           >
+//             <p>
+//               <strong>النوع:</strong> {inv.type}
+//             </p>
+//             <p>
+//               <strong>المبلغ:</strong> {inv.amount}
+//             </p>
+//             <p>
+//               <strong>التاريخ:</strong> {inv.date}
+//             </p>
+//             <p>
+//               <strong>الحالة:</strong> {inv.status}
+//             </p>
+
+//             {inv.imageUrl && (
+//               <img
+//                 src={inv.imageUrl}
+//                 alt="invoice"
+//                 className="mt-2 rounded border"
+//               />
+//             )}
+//           </div>
+//         ))}
+//       </div>
+
+//       {/* Main Chat */}
+//       <div className="flex-1 flex flex-col bg-gray-50">
+//         <div className="p-4 border-b bg-white shadow flex items-center gap-2">
+//           <Bot className="text-blue-600" />
+//           <h1 className="text-xl font-bold">Invoice AI Assistant</h1>
+//         </div>
+
+//         {/* Messages */}
+//         <div className="flex-1 p-4 overflow-y-auto">
+//           <AnimatePresence>
+//             {messages.map((msg, i) => (
+//               <motion.div
+//                 key={i}
+//                 initial={{ opacity: 0, y: 10 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 exit={{ opacity: 0 }}
+//                 className={`flex mb-3 ${
+//                   msg.sender === "user" ? "justify-end" : "justify-start"
+//                 }`}
+//               >
+//                 <div
+//                   className={`p-3 max-w-xs rounded-xl shadow ${
+//                     msg.sender === "user"
+//                       ? "bg-blue-600 text-white"
+//                       : "bg-white border"
+//                   }`}
+//                 >
+//                   {msg.image && (
+//                     <img
+//                       src={msg.image}
+//                       alt="upload"
+//                       className="rounded mb-2 border"
+//                     />
+//                   )}
+//                   <p>{msg.text}</p>
+//                 </div>
+//               </motion.div>
+//             ))}
+//           </AnimatePresence>
+
+//           <div ref={chatEndRef}></div>
+//         </div>
+
+//         {/* Input */}
+//         <div className="p-4 bg-white border-t flex items-center gap-3">
+//           <button
+//             onClick={() => fileInputRef.current.click()}
+//             className="p-2 bg-gray-200 rounded-full"
+//           >
+//             <ImageIcon />
+//           </button>
+
+//           <input
+//             type="file"
+//             hidden
+//             ref={fileInputRef}
+//             accept="image/*"
+//             onChange={handleImageSelect}
+//           />
+
+//           <input
+//             className="flex-1 p-2 bg-gray-100 rounded border"
+//             placeholder="اكتب رسالة…"
+//             value={input}
+//             onChange={(e) => setInput(e.target.value)}
+//           />
+
+//           <button
+//             onClick={sendMessage}
+//             className="p-2 bg-blue-600 text-white rounded-full"
+//           >
+//             <Send />
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
 import React, { useState, useRef, useEffect } from "react";
-import { Bot, Send, Image as ImageIcon } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Bot, Send, Image as ImageIcon, User } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function App() {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const fileInputRef = useRef(null);
-  const chatEndRef = useRef(null);
-
-  // Scroll to bottom
+// --- كتابة تدريجية ---
+const AnimatedText = ({ text, speed = 25 }) => {
+  const [shown, setShown] = useState("");
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    let i = 0;
+    setShown("");
+    const interval = setInterval(() => {
+      setShown(text.slice(0, i));
+      i++;
+      if (i > text.length) clearInterval(interval);
+    }, speed);
+    return () => clearInterval(interval);
+  }, [text, speed]);
+  return <p>{shown}</p>;
+};
 
-  // إرسال رسالة نصية
-  const sendMessage = () => {
-    if (!input.trim()) return;
+// --- فقاعات التحميل ---
+const TypingBubble = () => (
+  <div className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-2xl w-fit shadow-sm">
+    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDuration: "0.8s" }}></span>
+    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDuration: "0.8s", animationDelay: "0.15s" }}></span>
+    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDuration: "0.8s", animationDelay: "0.3s" }}></span>
+  </div>
+);
 
-    setMessages((prev) => [...prev, { sender: "user", text: input }]);
+// --- المكون الرئيسي للتطبيق ---
+const App = () => {
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: "bot",
+      text: "أهلاً بك! يمكنك رفع صورة الفاتورة وسأقوم بإرسالها للمعالجة.",
+      type: "text",
+    },
+  ]);
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "تم استلام رسالتك 👌" },
-      ]);
-    }, 600);
+  return (
+    <div className="flex h-screen bg-gray-50 font-sans text-gray-800 overflow-hidden">
+      <ChatInterface messages={messages} setMessages={setMessages} />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={true} closeOnClick rtl pauseOnHover draggable />
+    </div>
+  );
+};
 
-    setInput("");
+// --- واجهة الشات ---
+const ChatInterface = ({ messages, setMessages }) => {
+  const [inputText, setInputText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+  const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  const handleSend = () => {
+    if (!inputText.trim()) return;
+    const newMessage = { id: Date.now(), sender: "user", text: inputText, type: "text" };
+    setMessages(prev => [...prev, newMessage]);
+    setInputText("");
   };
 
-  // اختيار صورة
-  const handleImageSelect = (e) => {
+  // --- رفع الصور مع المعاينة ---
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    const tempUrl = URL.createObjectURL(file);
-
-    setMessages((prev) => [
-      ...prev,
-      { sender: "user", image: tempUrl, text: "📄 صورة فاتورة" },
-    ]);
-
-    uploadToAPI(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreviewImage(reader.result);
+    reader.readAsDataURL(file);
+    e.target.value = null;
   };
 
-  // رفع الصورة للباك
-  const uploadToAPI = async (file) => {
-    setLoading(true);
+  // --- إرسال الصورة للـ API ---
+  const sendPreviewImage = async () => {
+    if (!previewImage) return;
 
-    const formData = new FormData();
-    formData.append("file", file); // صححنا اسم البراميتر
+    setMessages(prev => [...prev, { id: Date.now(), sender: "user", image: previewImage, type: "image" }]);
+    setIsTyping(true);
+    const tempImage = previewImage;
+    setPreviewImage(null);
 
     try {
-      const response = await fetch(
-        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
-        { method: "POST", body: formData }
-      );
+      const formData = new FormData();
+      const blob = await (await fetch(tempImage)).blob();
+      formData.append("file", blob, "invoice.jpg");
 
-      const text = await response.text();
-      let data = {};
-      try {
-        data = JSON.parse(text);
-      } catch {
-        console.log("Response is not JSON, using raw text");
-      }
+      const response = await fetch("https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-      console.log("Response Status:", response.status);
-      console.log("Response Data:", data);
+      if (!response.ok) throw new Error("فشل رفع الفاتورة");
 
-      if (!response.ok || data.errors) {
-        const errorMsg = data.title || JSON.stringify(data);
-        setMessages((prev) => [
-          ...prev,
-          { sender: "bot", text: `❌ خطأ من الباك: ${errorMsg}` },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { sender: "bot", text: "✔ تم رفع الفاتورة ومعالجتها بنجاح" },
-        ]);
+      const data = await response.json(); 
+      console.log("Response from API:", data);
 
-        setInvoices((prev) => [
-          ...prev,
-          {
-            id: data.id || Date.now(),
-            type: data.type || "غير محدد",
-            amount: data.amount || "غير معروف",
-            status: data.status || "Completed",
-            date: data.date || new Date().toISOString().split("T")[0],
-            imageUrl: data.imageUrl || null,
-          },
-        ]);
-      }
+      setMessages(prev => [...prev, { id: Date.now() + 1, sender: "bot", text: "تم إرسال الصورة للـ API بنجاح ✅", type: "text" }]);
+      toast.success("تم إرسال الصورة للمعالجة!");
     } catch (err) {
-      console.log("Upload Error:", err);
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "❌ حدث خطأ أثناء الاتصال بالباك." },
-      ]);
+      console.error(err);
+      setMessages(prev => [...prev, { id: Date.now() + 1, sender: "bot", text: "حدث خطأ أثناء إرسال الصورة ⚠️", type: "text" }]);
+      toast.error("فشل إرسال الصورة للـ API");
+    } finally {
+      setIsTyping(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar – Record */}
-      <div className="w-72 bg-white shadow-lg p-5 overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">📁 سجل الفواتير</h2>
-
-        {invoices.length === 0 && (
-          <p className="text-gray-500 text-sm">لا يوجد فواتير بعد.</p>
+    <div className="flex flex-col flex-1 h-full bg-white">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+        {previewImage && (
+          <div className="fixed bottom-16 left-0 w-full flex justify-center px-4 z-50">
+            <div className="flex flex-col items-center bg-white p-4 rounded-xl shadow-2xl w-full max-w-lg">
+              <div className="w-full border border-gray-200 rounded-lg overflow-hidden shadow-lg">
+                <img src={previewImage} alt="معاينة" className="w-full h-auto max-h-96 object-contain" />
+              </div>
+              <div className="flex gap-3 w-full mt-3">
+                <button onClick={sendPreviewImage} className="flex-1 bg-blue-600 text-white px-4 py-2 rounded">إرسال</button>
+                <button onClick={() => setPreviewImage(null)} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded">إلغاء</button>
+              </div>
+            </div>
+          </div>
         )}
 
-        {invoices.map((inv) => (
-          <div
-            key={inv.id}
-            className="p-3 mb-3 bg-gray-50 rounded-lg border shadow-sm"
-          >
-            <p>
-              <strong>النوع:</strong> {inv.type}
-            </p>
-            <p>
-              <strong>المبلغ:</strong> {inv.amount}
-            </p>
-            <p>
-              <strong>التاريخ:</strong> {inv.date}
-            </p>
-            <p>
-              <strong>الحالة:</strong> {inv.status}
-            </p>
-
-            {inv.imageUrl && (
-              <img
-                src={inv.imageUrl}
-                alt="invoice"
-                className="mt-2 rounded border"
-              />
-            )}
+        {messages.map(msg => (
+          <div key={msg.id} className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
+            <div className={`flex max-w-[85%] gap-3 ${msg.sender === "user" ? "flex-row-reverse" : ""}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.sender === "user" ? "bg-blue-600" : "bg-emerald-600"}`}>
+                {msg.sender === "user" ? <User size={18} className="text-white" /> : <Bot size={18} className="text-white" />}
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className={`p-3 rounded-2xl text-sm ${msg.sender === "user" ? "bg-blue-600 text-white rounded-tl-none" : "bg-white text-gray-800 border border-gray-100 rounded-tr-none"}`}>
+                  {msg.type === "text" && (msg.sender === "bot" ? <AnimatedText text={msg.text} /> : <p>{msg.text}</p>)}
+                  {msg.type === "image" && <img src={msg.image} alt="Uploaded" className="max-w-full rounded-lg max-h-60 object-cover" />}
+                </div>
+              </div>
+            </div>
           </div>
         ))}
+
+        {isTyping && (
+          <div className="flex w-full justify-start">
+            <div className="flex max-w-[85%] gap-3">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-emerald-600">
+                <Bot size={18} className="text-white" />
+              </div>
+              <TypingBubble />
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Main Chat */}
-      <div className="flex-1 flex flex-col bg-gray-50">
-        <div className="p-4 border-b bg-white shadow flex items-center gap-2">
-          <Bot className="text-blue-600" />
-          <h1 className="text-xl font-bold">Invoice AI Assistant</h1>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 p-4 overflow-y-auto">
-          <AnimatePresence>
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className={`flex mb-3 ${
-                  msg.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`p-3 max-w-xs rounded-xl shadow ${
-                    msg.sender === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white border"
-                  }`}
-                >
-                  {msg.image && (
-                    <img
-                      src={msg.image}
-                      alt="upload"
-                      className="rounded mb-2 border"
-                    />
-                  )}
-                  <p>{msg.text}</p>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          <div ref={chatEndRef}></div>
-        </div>
-
-        {/* Input */}
-        <div className="p-4 bg-white border-t flex items-center gap-3">
-          <button
-            onClick={() => fileInputRef.current.click()}
-            className="p-2 bg-gray-200 rounded-full"
-          >
-            <ImageIcon />
+      <div className="p-3 bg-white">
+        <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-xl">
+          <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+          <button onClick={() => fileInputRef.current?.click()} className="p-2 text-gray-500 hover:text-blue-600">
+            <ImageIcon size={20} />
           </button>
-
-          <input
-            type="file"
-            hidden
-            ref={fileInputRef}
-            accept="image/*"
-            onChange={handleImageSelect}
-          />
-
-          <input
-            className="flex-1 p-2 bg-gray-100 rounded border"
-            placeholder="اكتب رسالة…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-          />
-
-          <button
-            onClick={sendMessage}
-            className="p-2 bg-blue-600 text-white rounded-full"
-          >
-            <Send />
+          <input type="text" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSend()} placeholder="اكتب رسالتك..." className="flex-1 bg-transparent border-none outline-none px-2" />
+          <button onClick={handleSend} className="p-2 bg-gray-900 text-white rounded-full">
+            <Send size={20} />
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default App;
