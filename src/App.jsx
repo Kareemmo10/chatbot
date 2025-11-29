@@ -628,67 +628,64 @@ export default function App() {
 
   // Handle uploading to API
   const uploadToAPI = async (file) => {
-    setLoading(true);
+  setLoading(true);
 
-    const formData = new FormData();
-    formData.append("file", file); // تأكد إن الباك يستنى "file"
+  const formData = new FormData();
+  formData.append("image", file); // <-- هنا اسم البراميتر "image"
 
+  try {
+    const response = await fetch(
+      "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    let data = {};
     try {
-      const response = await fetch(
-        "https://corrected-item-wilderness-acquisition.trycloudflare.com/api/Invoices/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      let data = {};
-      try {
-        data = await response.json();
-      } catch (err) {
-        console.log("Response is not JSON:", err);
-      }
-
-      console.log("Response Status:", response.status);
-      console.log("Response Data:", data);
-
-      // لو الرد فيه رسالة خطأ من الباك نعرضها
-      if (data.errors || response.status !== 200) {
-        const errorMsg = data.title || JSON.stringify(data);
-        setMessages((prev) => [
-          ...prev,
-          { sender: "bot", text: `❌ خطأ من الباك: ${errorMsg}` },
-        ]);
-      } else {
-        // رد البوت
-        setMessages((prev) => [
-          ...prev,
-          { sender: "bot", text: "✔ تم رفع الفاتورة ومعالجتها بنجاح" },
-        ]);
-
-        // نضيف للسجل
-        setInvoices((prev) => [
-          ...prev,
-          {
-            id: data.id || Date.now(),
-            type: data.type || "غير محدد",
-            amount: data.amount || "غير معروف",
-            status: data.status || "Completed",
-            date: data.date || new Date().toISOString().split("T")[0],
-            imageUrl: data.imageUrl || null,
-          },
-        ]);
-      }
+      data = await response.json();
     } catch (err) {
-      console.log("Upload Error:", err);
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "❌ حدث خطأ أثناء الاتصال بالباك." },
-      ]);
+      console.log("Response is not JSON:", err);
     }
 
-    setLoading(false);
-  };
+    console.log("Response Status:", response.status);
+    console.log("Response Data:", data);
+
+    if (data.errors || response.status !== 200) {
+      const errorMsg = data.title || JSON.stringify(data);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: `❌ خطأ من الباك: ${errorMsg}` },
+      ]);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "✔ تم رفع الفاتورة ومعالجتها بنجاح" },
+      ]);
+
+      setInvoices((prev) => [
+        ...prev,
+        {
+          id: data.id || Date.now(),
+          type: data.type || "غير محدد",
+          amount: data.amount || "غير معروف",
+          status: data.status || "Completed",
+          date: data.date || new Date().toISOString().split("T")[0],
+          imageUrl: data.imageUrl || null,
+        },
+      ]);
+    }
+  } catch (err) {
+    console.log("Upload Error:", err);
+    setMessages((prev) => [
+      ...prev,
+      { sender: "bot", text: "❌ حدث خطأ أثناء الاتصال بالباك." },
+    ]);
+  }
+
+  setLoading(false);
+};
 
   return (
     <div className="flex h-screen bg-gray-100">
