@@ -488,7 +488,7 @@ const InvoicesDashboard = () => {
         // هنا بنستخدم data.data عشان الفواتير موجودة جوا property اسمها data
         const formattedInvoices = data.data.map((inv) => ({
           id: inv.invoiceId,
-          type: inv.merchantName,
+          type: inv.invoiceType,
           date: new Date(inv.createdAt).toLocaleDateString("ar-EG"),
           amount: inv.totalAmount,
           status: inv.status.toLowerCase(),
