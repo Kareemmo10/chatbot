@@ -44,26 +44,26 @@ export default function InvoiceDetails() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-wrap gap-2 mb-6">
           <a
-            className="text-gray-500 dark:text-gray-400 text-sm font-medium"
+            className="text-gray-500  text-sm font-medium"
             href="#"
           >
             {" "}
             بوت بوت
           </a>
-          <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+          <span className="text-gray-500  text-sm font-medium">
             /
           </span>
           <a
-            className="text-gray-500 dark:text-gray-400 text-sm font-medium"
+            className="text-gray-500  text-sm font-medium"
             href="#"
           >
             {" "}
             سجل الفواتير{" "}
           </a>
-          <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+          <span className="text-gray-500  text-sm font-medium">
             /
           </span>
-          <span className="text-gray-900 dark:text-white text-sm font-medium">
+          <span className="text-gray-900  text-sm font-medium">
             {`${invoice.invoiceId}`}
           </span>
         </div>
@@ -76,8 +76,8 @@ export default function InvoiceDetails() {
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
                 invoice.status === "Completed"
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
-                  : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300"
+                  ? "bg-green-100 text-green-700  "
+                  : "bg-yellow-100 text-yellow-700 "
               }`}
             >
               {invoice.status === "Completed" ? "مدفوعة" : invoice.status}
@@ -89,38 +89,38 @@ export default function InvoiceDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white dark:bg-background-dark/50 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <div className="bg-white  p-6 rounded-xl border border-gray-200 ">
+                <h3 className="text-lg font-semibold text-gray-900  mb-4">
                   من
                 </h3>
                 <div className="space-y-3 text-sm">
-                  <p className="font-bold text-gray-800 dark:text-gray-200">
+                  <p className="font-bold text-gray-800 ">
                     {ai.MerchantName}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-600 ">
                     {ai.MerchantAddress}
                   </p>
                   {ai.MerchantVat && (
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-gray-600 ">
                       VAT: {ai.MerchantVat}
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-background-dark/50 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <div className="bg-white  p-6 rounded-xl border border-gray-200 ">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   إلى
                 </h3>
                 <div className="space-y-3 text-sm">
-                  <p className="font-bold text-gray-800 dark:text-gray-200">
+                  <p className="font-bold text-gray-800 ">
                     {ai.BuyerName}
                   </p>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-600">
                     {ai.BuyerAddress}
                   </p>
                   {ai.BuyerVat && (
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-gray-600 ">
                       VAT: {ai.BuyerVat}
                     </p>
                   )}
@@ -128,47 +128,47 @@ export default function InvoiceDetails() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-background-dark/50 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <div className="bg-white  p-6 rounded-xl border border-gray-200 ">
+              <h3 className="text-lg font-semibold text-gray-900  mb-4">
                 العناصر
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-right text-sm">
-                  <thead className="border-b border-gray-200 dark:border-gray-700">
+                  <thead className="border-b border-gray-200">
                     <tr>
-                      <th className="py-3 px-4 font-semibold text-gray-500 dark:text-gray-400">
+                      <th className="py-3 px-4 font-semibold text-gray-500 ">
                         #
                       </th>
-                      <th className="py-3 px-4 font-semibold text-gray-500 dark:text-gray-400">
+                      <th className="py-3 px-4 font-semibold text-gray-500 ">
                         اسم العنصر
                       </th>
-                      <th className="py-3 px-4 font-semibold text-gray-500 dark:text-gray-400 text-left">
+                      <th className="py-3 px-4 font-semibold text-gray-500  text-left">
                         الكمية
                       </th>
-                      <th className="py-3 px-4 font-semibold text-gray-500 dark:text-gray-400 text-left">
+                      <th className="py-3 px-4 font-semibold text-gray-500  text-left">
                         سعر الوحدة
                       </th>
-                      <th className="py-3 px-4 font-semibold text-gray-500 dark:text-gray-400 text-left">
+                      <th className="py-3 px-4 font-semibold text-gray-500  text-left">
                         الإجمالي
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                  <tbody className="divide-y divide-gray-200 ">
                     {ai.Items.map((item) => (
                       <tr key={item.itemNo}>
-                        <td className="py-4 px-4 text-gray-600 dark:text-gray-400">
+                        <td className="py-4 px-4 text-gray-600">
                           {item.itemNo}
                         </td>
-                        <td className="py-4 px-4 font-medium text-gray-800 dark:text-gray-200">
+                        <td className="py-4 px-4 font-medium text-gray-800 ">
                           {item.FullName}
                         </td>
-                        <td className="py-4 px-4 text-gray-600 dark:text-gray-400 text-left">
+                        <td className="py-4 px-4 text-gray-600  text-left">
                           {item.Qty}
                         </td>
-                        <td className="py-4 px-4 text-gray-600 dark:text-gray-400 text-left">
+                        <td className="py-4 px-4 text-gray-600  text-left">
                           {item.UnitPrice} {ai.Currency}
                         </td>
-                        <td className="py-4 px-4 font-medium text-gray-800 dark:text-gray-200 text-left">
+                        <td className="py-4 px-4 font-medium text-gray-800  text-left">
                           {item.LineTotal} {ai.Currency}
                         </td>
                       </tr>
@@ -180,8 +180,8 @@ export default function InvoiceDetails() {
           </div>
 
           <div className="lg:col-span-1 space-y-8">
-            <div className="w-full bg-white dark:bg-background-dark/50 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <div className="w-full bg-white  p-6 rounded-xl border border-gray-200 ">
+              <h3 className="text-lg font-semibold text-gray-900  mb-4">
                 صورة الفاتورة
               </h3>
               <div
@@ -189,13 +189,13 @@ export default function InvoiceDetails() {
                 onClick={() => window.open(invoice.imagePath, "_blank")}
               >
                 <div
-                  className="w-full bg-center bg-no-repeat bg-cover aspect-auto rounded-lg flex-1 border border-gray-200 dark:border-gray-800"
+                  className="w-full bg-center bg-no-repeat bg-cover aspect-auto rounded-lg flex-1 border border-gray-200"
                   style={{ backgroundImage: `url(${invoice.imagePath})` }}
                 />
               </div>
             </div>
 
-            <div className="bg-white dark:bg-background-dark/50 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 ">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 التفاصيل
               </h3>
@@ -204,73 +204,73 @@ export default function InvoiceDetails() {
                   <p className="text-gray-500 dark:text-gray-400">
                     رقم الفاتورة
                   </p>
-                  <p className="text-gray-800 dark:text-gray-200 font-medium">{`INV-${invoice.invoiceId}`}</p>
+                  <p className="text-gray-800  font-medium">{`INV-${invoice.invoiceId}`}</p>
                 </div>
                 <div className="flex flex-col gap-1 pr-2">
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-gray-500 ">
                     نوع الفاتورة
                   </p>
-                  <p className="text-gray-800 dark:text-gray-200 font-medium">
+                  <p className="text-gray-800  font-medium">
                     {ai.InvoiceType}
                   </p>
                 </div>
                 <div className="flex flex-col gap-1 pl-2">
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-gray-500 ">
                     تاريخ الإنشاء
                   </p>
-                  <p className="text-gray-800 dark:text-gray-200 font-medium">
+                  <p className="text-gray-800  font-medium">
                     {new Date(invoice.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex flex-col gap-1 pr-2">
-                  <p className="text-gray-500 dark:text-gray-400">الحالة</p>
-                  <p className="text-gray-800 dark:text-gray-200 font-medium text-green-700 dark:text-green-300">
+                  <p className="text-gray-500 ">الحالة</p>
+                  <p className="text-gray-800  font-medium text-green-700 ">
                     {invoice.status === "Completed" ? "مدفوعة" : invoice.status}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-background-dark/50 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <div className="bg-white  p-6 rounded-xl border border-gray-200 ">
+              <h3 className="text-lg font-semibold text-gray-900  mb-4">
                 الملخص المالي
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-500 ">
                     عدد العناصر
                   </span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                  <span className="font-medium text-gray-800 ">
                     {ai.ItemCount}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-500 ">
                     الإجمالي قبل الضريبة
                   </span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                  <span className="font-medium text-gray-800 ">
                     {ai.TotalExcludingVAT} {ai.Currency}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-500 ">
                     إجمالي الضريبة
                   </span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                  <span className="font-medium text-gray-800 ">
                     {ai.TotalTax} {ai.Currency}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-500 ">
                     إجمالي الخصم
                   </span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                  <span className="font-medium text-gray-800">
                     {ai.TotalDiscount} {ai.Currency}
                   </span>
                 </div>
-                <div className="border-t border-gray-200 dark:border-gray-700 my-3" />
+                <div className="border-t border-gray-200  my-3" />
                 <div className="flex justify-between items-center text-base">
-                  <span className="font-bold text-gray-900 dark:text-white">
+                  <span className="font-bold text-gray-900 ">
                     المبلغ الإجمالي النهائي
                   </span>
                   <span className="font-bold text-primary">
