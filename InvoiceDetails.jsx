@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import InvoiceImage from "./InvoiceImage";
 
 export default function InvoiceDetails() {
+  const [isOpen, setIsOpen] = useState(false);
   const { id } = useParams();
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +25,7 @@ export default function InvoiceDetails() {
         setLoading(false);
       }
     };
+
 
     fetchInvoice();
   }, [id]);
@@ -180,20 +183,17 @@ export default function InvoiceDetails() {
           </div>
 
           <div className="lg:col-span-1 space-y-8">
-            <div className="w-full bg-white  p-6 rounded-xl border border-gray-200 ">
-              <h3 className="text-lg font-semibold text-gray-900  mb-4">
-                صورة الفاتورة
-              </h3>
-              <div
-                className="w-full gap-1 overflow-hidden aspect-[4/5] rounded-lg flex cursor-pointer"
-                onClick={() => window.open(invoice.imagePath, "_blank")}
-              >
-                <div
-                  className="w-full bg-center bg-no-repeat bg-cover aspect-auto rounded-lg flex-1 border border-gray-200"
-                  style={{ backgroundImage: `url(${invoice.imagePath})` }}
-                />
-              </div>
-            </div>
+            <div className="lg:col-span-1 space-y-8">
+  <div className="w-full bg-white p-6 rounded-xl border border-gray-200">
+    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      صورة الفاتورة
+    </h3>
+
+    {/* الصورة المصغرة + مودال */}
+    <InvoiceImage imagePath={invoice.imagePath} />
+  </div>
+</div>
+
 
             <div className="bg-white p-6 rounded-xl border border-gray-200 ">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
