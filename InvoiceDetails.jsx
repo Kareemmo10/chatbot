@@ -70,7 +70,7 @@ export default function InvoiceDetails() {
 
         <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <p className="text-gray-900 dark:text-white text-3xl font-bold tracking-tight">
+            <p className="text-gray-900  text-3xl font-bold tracking-tight">
               تفاصيل الفاتورة {invoice.invoiceId}
             </p>
             <span
