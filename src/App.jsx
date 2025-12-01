@@ -190,7 +190,8 @@ const ChatInterface = ({ messages, setMessages, addInvoice }) => {
   };
 
   // --- دالة إرسال الصورة للـ API ---
-  const sendPreviewImage = async () => {
+  // --- تعديل: دالة عرض الصورة وسؤال المستخدم (بدون رفع) ---
+  const sendPreviewImage = () => {
     if (!previewImage || !selectedFile) return;
 
     // 1. عرض الصورة في الشات فوراً كرسالة من المستخدم
@@ -198,72 +199,35 @@ const ChatInterface = ({ messages, setMessages, addInvoice }) => {
       ...prev,
       { id: Date.now(), sender: "user", image: previewImage, type: "image" },
     ]);
-    
-    // إخفاء المعاينة وإظهار حالة "جاري الكتابة"
-    const tempImage = previewImage;
+
+    // إخفاء المعاينة
+    const tempImage = previewImage; // نحتفظ بها للعرض لو احتجنا
     setPreviewImage(null);
+    
+    // ملاحظة: لا تقم بمسح selectedFile هنا! سنحتاجه في الخطوة القادمة
+    // setSelectedFile(null); <--- شيلنا السطر ده
+
     setIsTyping(true);
 
-    try {
-      // 2. تحضير الـ FormData
-      const formData = new FormData();
-      formData.append("file", selectedFile); // تأكد أن المفتاح 'file' هو ما يتوقعه الـ API
-
-      // 3. استدعاء الـ API
-      const response = await fetch("https://nsaproject.runasp.net/api/Invoices/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("فشل الاتصال بالخادم");
-      }
-
-      const data = await response.json();
-      console.log("API Response:", data);
-
-      // 4. معالجة الرد الناجح
-      setPendingInvoiceId(data.invoiceId); // حفظ الـ ID لاستخدامه لاحقاً
-      
+    // 2. البوت يسأل عن النوع (محاكاة)
+    setTimeout(() => {
       setIsTyping(false);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           sender: "bot",
-          // عرض الرسالة القادمة من الـ API
-          text: `${data.message} (رقم الفاتورة: ${data.invoiceId}). حدد نوع الفاتورة للمتابعة:`,
-          type: "options",
+          text: "تم استلام الصورة. من فضلك حدد نوع الفاتورة لبدء المعالجة:",
+          type: "options", // ده هيظهر الأزرار
           relatedImage: tempImage,
         },
       ]);
-      
-      toast.success("تم رفع الفاتورة للسيرفر بنجاح!");
+    }, 600);
+  };
 
-    } catch (error) {
-      console.error("Error uploading invoice:", error);
-      setIsTyping(false);
-      toast.error("حدث خطأ أثناء رفع الفاتورة، سيتم استخدام محاكاة محلية.");
-      
-      // Fallback (محاكاة في حالة فشل الـ API)
-      setPendingInvoiceId(Math.floor(Math.random() * 10000)); 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: "bot",
-          text: "لم نتمكن من الوصول للخادم، لكن تم استلام الصورة محلياً. حدد نوع الفاتورة:",
-          type: "options",
-          relatedImage: tempImage,
-        },
-      ]);
-    }
-    
-    // تنظيف المتغيرات
-    setSelectedFile(null);
-  };
-
-  const handleOptionClick = (option, relatedImage) => {
+  // --- تعديل: دالة الرفع الحقيقية عند اختيار النوع ---
+  const handleOptionClick = async (option, relatedImage) => {
+    // 1. عرض اختيار المستخدم في الشات
     setMessages((prev) => [
       ...prev,
       {
@@ -273,48 +237,72 @@ const ChatInterface = ({ messages, setMessages, addInvoice }) => {
         type: "text",
       },
     ]);
-    setIsTyping(true);
 
-    setTimeout(() => {
+    // 2. التأكد من وجود ملف للرفع
+    if (!selectedFile) {
+        toast.error("حدث خطأ: فقدنا ملف الصورة، يرجى الرفع مرة أخرى.");
+        return;
+    }
+
+    setIsTyping(true); // إظهار جاري التحميل
+
+    try {
+      // 3. تحضير الداتا (الملف + النوع)
+      const formData = new FormData();
+      formData.append("file", selectedFile); 
+      formData.append("invoiceType", option); // <--- هنا بنبعت النوع اللي اليوزر داس عليه
+
+      // 4. استدعاء الـ API
+      const response = await fetch("https://nsaproject.runasp.net/api/Invoices/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errData = await response.text();
+        throw new Error(errData || "فشل الاتصال بالخادم");
+      }
+
+      const data = await response.json();
+      console.log("API Success:", data);
+
+      // 5. الرد الناجح من البوت
+      setIsTyping(false);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 10,
           sender: "bot",
-          text: `جارِ تحليل ${option} واستخراج البيانات...`,
+          text: `✅ ${data.message} (رقم الفاتورة: ${data.invoiceId}). جاري التحليل بذكاء Gemini...`,
           type: "text",
         },
       ]);
 
-      setTimeout(() => {
-        setIsTyping(false);
-        // استخدام الـ ID الحقيقي من الـ API إذا وجد، أو استخدام رقم عشوائي
-        const finalId = pendingInvoiceId || Math.floor(Math.random() * 10000);
-        
-        const newInvoice = {
-          id: finalId,
-          type: option,
-          date: new Date().toISOString().split("T")[0],
-          status: "completed",
-          amount: (Math.random() * 1000).toFixed(2) + " جنيه",
-          imageUrl: relatedImage,
-        };
-        
-        addInvoice(newInvoice);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now() + 20,
-            sender: "bot",
-            text: 'تمت معالجة الفاتورة بنجاح وإضافتها للسجل.',
-            type: "text",
-          },
-        ]);
-        toast.success(`تم حفظ الفاتورة رقم #${finalId}`);
-        setPendingInvoiceId(null); // Reset
-      }, 2000);
-    }, 800);
-  };
+      toast.success("تم الرفع بنجاح!");
+      
+      // إضافة الفاتورة للقائمة المحلية (اختياري حسب منطقك)
+      // addInvoice(...) 
+
+    } catch (error) {
+      console.error("Upload Error:", error);
+      setIsTyping(false);
+      toast.error(`فشل الرفع: ${error.message}`);
+      
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 10,
+          sender: "bot",
+          text: "❌ حدث خطأ أثناء إرسال الفاتورة للخادم.",
+          type: "text",
+        },
+      ]);
+    } finally {
+        // 6. تنظيف الملف بعد الانتهاء تماماً
+        setSelectedFile(null);
+    }
+  };
+
 
   return (
     <div className="flex flex-col h-full bg-white">
