@@ -275,7 +275,8 @@ const ChatInterface = ({ messages, setMessages, addInvoice }) => {
         {
           id: Date.now() + 10,
           sender: "bot",
-          text: `✅ ${data.message} (رقم الفاتورة: ${data.invoiceId}). جاري التحليل بذكاء Gemini...`,
+          text: `${data.message} (رقم الفاتورة: ${data.invoiceId}). يتم الآن تحليل البيانات... ✅`,
+
           type: "text",
         },
       ]);
