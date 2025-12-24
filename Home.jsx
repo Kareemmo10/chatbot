@@ -275,7 +275,7 @@ const ChatInterface = ({ messages, setMessages, addInvoice }) => {
         {
           id: Date.now() + 10,
           sender: "bot",
-          text: `${data.message} (رقم الفاتورة: ${data.invoiceId}). يتم الآن تحليل البيانات... ✅`,
+          text: `${data.message} ( رقم الفاتورة: ${data.invoiceId}). يتم الآن تحليل البيانات... ✅`,
 
           type: "text",
         },
@@ -561,14 +561,5 @@ const InvoicesDashboard = () => {
     </div>
   );
 };
-
-
-
-
-  
-
-
-
-
 
 export default Home;
