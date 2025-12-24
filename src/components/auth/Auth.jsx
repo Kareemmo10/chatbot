@@ -293,8 +293,8 @@ export default function Auth() {
 
           <p className="text-center opacity-90 mb-6">
             {isLogin
-              ? "سجّل الدخول لإتمام مشترياتك الطبية."
-              : "أنشئ حساباً جديداً للتسوق بسهولة"}
+              ? "سجّل الدخول للتحدث الي بوت الفواتير ."
+              : "أنشئ حساباً جديداً للتحدث مع بوت الفواتير ."}
           </p>
 
           <img src="/doctor.png" alt="" className="w-40 drop-shadow-2xl mb-6" />
