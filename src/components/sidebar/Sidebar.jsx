@@ -8,7 +8,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
   const location = useLocation();
 
   return (
-    <aside className="w-20 md:w-64 bg-slate-900 text-white flex flex-col shadow-xl">
+    <aside className="w-20 md:w-64 bg-slate-900 text-white flex flex-col shadow-xl sticky top-0 h-screen">
       <div className="p-4 md:p-6 flex items-center gap-3 border-b border-slate-700">
         <div className="bg-blue-600 p-2 rounded-lg">
           <Bot size={24} className="text-white" />

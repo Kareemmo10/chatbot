@@ -25,7 +25,7 @@ function App() {
               <PrivateRoute>
                 <div
                   dir="rtl"
-                  className="flex h-screen bg-gray-50 font-sans text-gray-800 overflow-hidden"
+                  className="flex h-screen bg-gray-50 font-sans text-gray-800 overflow-auto"
                 >
                   <Sidebar />
 
