@@ -81,20 +81,23 @@ export default function Auth() {
   };
 
   return (
-        <div className="flex justify-center items-center h-screen bg-[#e8efff] p-4">
+        <div className="flex justify-center items-center h-screen bg-[#101622] p-4">
+          
 
       <div className="w-[900px] h-[550px] bg-white rounded-3xl overflow-hidden shadow-2xl relative flex">
 
-        {/* BLUE SIDE PANEL */}
+        {/*  SIDE PANEL */}
         <div
-          className={`
-            absolute top-0 h-full w-1/2
-            bg-gradient-to-br from-blue-500 to-blue-700 text-white
-            flex flex-col justify-center items-center px-10
-            transition-all duration-700 ease-in-out
-            ${isLogin ? "left-0" : "left-1/2"}
-          `}
-        >
+  className={`
+    absolute top-0 h-full w-1/2
+    bg-[#181B21] text-white
+    flex flex-col justify-center items-center px-10
+    transition-all duration-700 ease-in-out
+    ${isLogin ? "left-0" : "left-1/2"}
+  `}
+>
+
+
           <h1 className="text-4xl font-bold mb-3">
             {isLogin ? "مرحباً بعودتك!" : "أهلاً بك!"}
           </h1>
@@ -132,7 +135,7 @@ export default function Auth() {
               ${isLogin ? "opacity-100" : "opacity-0 pointer-events-none"}
             `}
           >
-            <h2 className="text-3xl font-bold text-center mb-7 text-gray-700">
+            <h2 className="text-3xl font-bold text-center mb-7 text-[#181B21]">
               تسجيل دخول
             </h2>
 
@@ -154,7 +157,7 @@ export default function Auth() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-blue-600 hover:bg-blue-800 text-white rounded-full font-semibold"
+              className="w-full py-3 bg-[#181B21] hover:bg-[#1f212b] text-white rounded-full font-semibold"
             >
               دخول
             </button>
@@ -168,7 +171,7 @@ export default function Auth() {
               ${!isLogin ? "opacity-100" : "opacity-0 pointer-events-none"}
             `}
           >
-            <h2 className="text-3xl font-bold text-center mb-7 text-gray-700">
+            <h2 className="text-3xl font-bold text-center mb-7 text-[#181B21]">
               إنشاء حساب
             </h2>
 
@@ -206,7 +209,7 @@ export default function Auth() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-blue-600 hover:bg-blue-800 text-white rounded-full font-semibold"
+              className="w-full py-3 bg-[#181B21] hover:bg-[#1f212b] text-white rounded-full font-semibold"
             >
               إنشاء حساب
             </button>

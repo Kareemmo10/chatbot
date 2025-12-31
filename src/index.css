@@ -24,3 +24,65 @@
     font-size: 0.75rem;
   }
 }
+
+/* styles.css أو أي ملف CSS عندك */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;             /* عرض الشريط */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #101622;    /* لون المسار */
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #155DFC;  /* لون المقبض */
+  border-radius: 8px;
+  border: 2px solid #101622;  /* مسافة padding داخلية بين المقبض والمسار */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #1a6eff;  /* لون عند hover */
+}
+/* Chrome, Edge, Safari */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox */
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+
+
+
+/* يمكن تضيفه في App.css أو داخل <style> */
+::-webkit-scrollbar {
+  width: 6px;               /* عرض شريط الاسكرول */
+}
+
+::-webkit-scrollbar-track {
+  background: #0F172A;       /* لون الخلفية */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #155DFC; /* لون المقبض */
+  border-radius: 4px;
+  border: 2px solid #111318; /* لإضافة padding بين المقبض والخلفية */
+}
+
+/* Optional: hover effect */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #6366f1;
+}
+
+
+
+/* في ملف CSS أو داخل <style> */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* يخلي الأيقونة بيضاء */
+}
+
+

@@ -1,4 +1,6 @@
-import { Send, Bot, LogOut, AlertCircle } from "lucide-react"; // أضفنا أيقونة المراجعة
+import { Send, Bot, LogOut, AlertCircle, Menu } from "lucide-react"; // أضفنا أيقونة المراجعة
+import React, { useState } from "react";
+
 import { useAuth } from "../auth/AuthContext"; 
 import { useLocation, Link } from "react-router-dom";
 
@@ -6,54 +8,112 @@ import { useLocation, Link } from "react-router-dom";
 export default function Sidebar({ activeTab, setActiveTab }) {
   const { logout } = useAuth();
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+const toggleSidebar = () => setIsOpen(!isOpen);
+
+  
 
   return (
-    <aside className="w-20 md:w-64 bg-slate-900 text-white flex flex-col shadow-xl sticky top-0 h-screen">
-      <div className="p-4 md:p-6 flex items-center gap-3 border-b border-slate-700">
-        <div className="bg-blue-600 p-2 rounded-lg">
-          <Bot size={24} className="text-white" />
-        </div>
-        <h1 className="hidden md:block font-bold text-lg">بوت الفواتير</h1>
-      </div>
+<aside
+  className={`h-screen flex flex-col justify-between
+    bg-[#111318] border-l border-[#1f2430] text-white
+    transition-all duration-300
+${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
+>
+  {/* الجزء العلوي */}
+  <div>
+    {/* Header */}
+    <div className="p-3 flex flex-col  gap-3 border-b border-[#1f2430]">
+       <button
+        onClick={toggleSidebar}
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg
+           "
+      >
+        <Menu size={18} />
+      </button>
 
-      <nav className="flex-1 p-4 gap-2 flex flex-col">
+      
+
+      {/* <div className="flex flex-row"> 
+        
+        <div className="size-8 bg-blue-600 rounded-lg flex items-center justify-center">
+        <Bot size={18} />
+      </div>
+      
+      {isOpen && (
+        <h1 className="font-bold text-sm tracking-tight">
+          بوت الفواتير
+        </h1>
+      )}
+      </div> */}
+
+
+      
+      
+    </div>
+
+    {/* Menu */}
+    <nav className="p-4 flex flex-col gap-2">
+      {/* Toggle */}
+     
+
+      {/* Chat */}
       <Link
         to="/chat"
-        className={`flex items-center gap-3 p-3 rounded-xl ${
-          location.pathname === "/chat" ? "bg-blue-600 text-white" : "text-slate-400"
-        }`}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+          ${
+            location.pathname === "/chat"
+              ? "bg-[#282e39] text-white"
+              : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
+          }`}
       >
-        <Send size={20} /> المحادثة الذكية
+        <Send size={18} />
+        {isOpen && <span className="text-sm font-medium">الشات</span>}
       </Link>
 
+      {/* Invoices */}
       <Link
         to="/invoices"
-        className={`flex items-center gap-3 p-3 rounded-xl ${
-          location.pathname === "/invoices" ? "bg-blue-600 text-white" : "text-slate-400"
-        }`}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+          ${
+            location.pathname === "/invoices"
+              ? "bg-[#282e39] text-white"
+              : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
+          }`}
       >
-        <Bot size={20} /> سجل الفواتير
+        <Bot size={18} />
+        {isOpen && <span className="text-sm font-medium">سجل الفواتير</span>}
       </Link>
 
+      {/* Review */}
       <Link
         to="/review"
-        className={`flex items-center gap-3 p-3 rounded-xl ${
-          location.pathname === "/review" ? "bg-blue-600 text-white" : "text-slate-400"
-        }`}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+          ${
+            location.pathname === "/review"
+              ? "bg-[#282e39] text-white"
+              : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
+          }`}
       >
-        <AlertCircle size={20} /> مراجعة الفواتير
+        <AlertCircle size={18} />
+        {isOpen && <span className="text-sm font-medium">مراجعة الفواتير</span>}
       </Link>
     </nav>
+  </div>
 
-      <div className="p-4 border-t border-slate-700">
-        <button
-          onClick={logout}
-          className="flex items-center gap-3 p-3 rounded-xl w-full text-slate-400 hover:bg-slate-800 hover:text-white transition-all duration-200"
-        >
-          <LogOut size={20} />
-          <span className="hidden md:block font-medium">تسجيل الخروج</span>
-        </button>
-      </div>
-    </aside>
+  {/* Footer */}
+  <div className="p-4 border-t border-[#1f2430]">
+    <button
+      onClick={logout}
+      className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full
+        text-[#9da6b9] hover:bg-[#282e39] hover:text-white transition-colors"
+    >
+      <LogOut size={18} />
+      {isOpen && <span className="text-sm font-medium">تسجيل الخروج</span>}
+    </button>
+  </div>
+</aside>
+
+
   );
 }
