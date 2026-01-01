@@ -136,56 +136,95 @@ const grandTotal = subtotal + tax;
  const handleApprove = async () => {
   if (!selectedInvoice) return;
 
-  // نتأكد إن كل عنصر له ProductId
   const invalidItems = selectedInvoice.items.filter(i => !i.productId);
   if (invalidItems.length > 0) {
-    toast.error("كل عنصر يجب أن يكون له منتج محدد قبل الاعتماد");
+    toast.error("كل عنصر يجب أن يكون له منتج محدد");
     return;
   }
 
   setActionLoading(true);
 
   try {
-    // نحول القيم لأرقام
     const payload = {
-  items: selectedInvoice.items.map(i => ({
-    productId: i.productId,
-    quantity: Number(i.quantity),
-    unitPrice: Number(i.price),
-  })),
-};
+      invoiceNumber: selectedInvoice.invoiceNumber,
+      merchantName: selectedInvoice.merchantName,
+      merchantVat: selectedInvoice.merchantVat,
+      buyerName: "Internal Buyer", // أو من عندك
+      buyerVat: "0000000000",
+      invoiceDate: new Date(selectedInvoice.invoiceDate).toISOString(),
+      totalAmount: Number(grandTotal),
+      totalTax: Number(selectedInvoice.totalTax),
+      items: selectedInvoice.items.map(i => ({
+        productId: Number(i.productId),
+        fullName: i.rawName,
+        qty: Number(i.quantity),
+        unitPrice: Number(i.price),
+      })),
+    };
 
-
-    console.log("payload", payload); // للتأكد من شكل البيانات
+    console.log("APPROVE PAYLOAD", payload);
 
     const res = await fetch(
       `${API_BASE}/Invoices/${selectedInvoice.id}/approve`,
       {
         method: "POST",
-        headers: { 
-          Authorization: `Bearer ${token}`, 
-          "Content-Type": "application/json" 
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       }
     );
 
     if (res.ok) {
-      toast.success("تم اعتماد الفاتورة");
-      setInvoicesToReview((p) => p.filter((i) => i.id !== selectedInvoice.id));
+      toast.success("تم اعتماد الفاتورة بنجاح");
+      setInvoicesToReview(p => p.filter(i => i.id !== selectedInvoice.id));
       setSelectedInvoice(null);
     } else {
-      const errData = await res.json();
-      console.error("Approve error:", errData);
-      toast.error(errData.message || "فشل الاعتماد، تحقق من البيانات");
+      const err = await res.json();
+      toast.error(err.message || "فشل الاعتماد");
     }
-  } catch (err) {
-    console.error(err);
+  } catch {
+    toast.error("مشكلة في الاتصال بالسيرفر");
+  } finally {
+    setActionLoading(false);
+  }
+};
+
+const handleReject = async () => {
+  if (!selectedInvoice) return;
+
+  setActionLoading(true);
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/Invoices/${selectedInvoice.id}/reject`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (res.ok) {
+      toast.success("تم رفض الفاتورة");
+      setInvoicesToReview((p) =>
+        p.filter((i) => i.id !== selectedInvoice.id)
+      );
+      setSelectedInvoice(null);
+    } else {
+      const err = await res.json();
+      toast.error(err.message || "فشل رفض الفاتورة");
+    }
+  } catch {
     toast.error("مشكلة اتصال بالسيرفر");
   } finally {
     setActionLoading(false);
   }
 };
+
+
 
 
   /* ================= UI ================= */
@@ -371,7 +410,14 @@ const grandTotal = subtotal + tax;
 
               {/* Actions */}
               <div className="flex justify-end gap-4">
-                <button className="px-6 py-2 bg-red-500/10 border border-red-500  text-red-400 rounded-lg" onClick={()=>setSelectedInvoice(null)}>رفض</button>
+                <button
+  disabled={actionLoading}
+  onClick={handleReject}
+  className="px-6 py-2 bg-red-500/10 border border-red-500 text-red-400 rounded-lg"
+>
+  {actionLoading ? "..." : "رفض"}
+</button>
+
                 <button disabled={actionLoading} onClick={handleApprove} className="px-8 py-2 bg-blue-600/80 rounded-lg font-bold">
                   {actionLoading ? "..." : "اعتماد ومعالجة"}
                 </button>

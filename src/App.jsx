@@ -8,6 +8,8 @@ import InvoicesDashboard from "./components/dashboard/InvoicesDashboard";
 import InvoiceReviewPage from "./components/invoice/InvoiceReviewPage"; // الصفحة الجديدة
 import InvoiceDetails from "./components/dashboard/InvoiceDetails";
 import { useState } from "react";
+import Products from "./components/prodact/Products";
+import DashboardPage from "./components/dashboard/DashboardPage";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -23,45 +25,24 @@ function App() {
             path="/*"
             element={
               <PrivateRoute>
-                <div
-                  dir="rtl"
-                  className="flex h-screen bg-gray-50 font-sans text-gray-800 overflow-auto"
-                >
-                  <Sidebar />
+               <div dir="rtl" className="flex h-screen bg-gray-50 font-sans text-gray-800">
+  {/* Sidebar ثابت */}
+  <Sidebar className="h-screen flex-shrink-0" />
 
-                  <main className="flex-1 flex flex-col h-full">
-                    <Routes>
-                      <Route
-                        path="/"
-                        element={<Navigate to="/chat" replace />}
-                      />
-                      <Route
-                        path="/chat"
-                        element={
-                          <ChatInterface
-                            messages={messages}
-                            setMessages={setMessages}
-                            addInvoice={(inv) => setInvoices([inv, ...invoices])}
-                          />
-                        }
-                      />
-                      <Route
-                        path="/invoices"
-                        element={<InvoicesDashboard invoices={invoices} />}
-                      />
-                      <Route
-                        path="/review"
-                        element={
-                          <InvoiceReviewPage
-                            invoices={invoices}
-                            setInvoices={setInvoices}
-                          />
-                        }
-                      />
-                      <Route path="/invoice/:id" element={<InvoiceDetails />} />
-                    </Routes>
-                  </main>
-                </div>
+  {/* محتوى الصفحة فقط اللي يتعمله Scroll */}
+  <div className="flex-1 flex flex-col overflow-auto">
+    <Routes>
+      <Route path="/" element={<Navigate to="/chat" replace />} />
+      <Route path="/chat" element={<ChatInterface messages={messages} setMessages={setMessages} addInvoice={(inv)=>setInvoices([inv,...invoices])}/>} />
+      <Route path="/invoices" element={<InvoicesDashboard invoices={invoices} />} />
+      <Route path="/review" element={<InvoiceReviewPage invoices={invoices} setInvoices={setInvoices} />} />
+      <Route path="/prodacts" element={<Products />} />
+      <Route path="/dashbord" element={<DashboardPage />} />
+      <Route path="/invoice/:id" element={<InvoiceDetails />} />
+    </Routes>
+  </div>
+</div>
+
               </PrivateRoute>
             }
           />

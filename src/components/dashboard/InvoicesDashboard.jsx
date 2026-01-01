@@ -27,6 +27,8 @@ export default function InvoicesDashboard({ invoices: initialInvoices }) {
         imageUrl: inv.imagePath,
       }));
 
+      
+
       setInvoices(formattedInvoices);
     } catch (err) {
       console.error("فشل تحميل الفواتير:", err);
@@ -40,11 +42,34 @@ export default function InvoicesDashboard({ invoices: initialInvoices }) {
 
 
   const handleRowClick = (invoice) => navigate(`/invoice/${invoice.id}`);
+  const statusMap = {
+  completed: {
+    label: "معتمد",
+    className: "bg-green-700 text-green-100",
+  },
+  ai_processing: {
+    label: "معالجة AI",
+    className: "bg-yellow-700 text-yellow-100",
+  },
+  rejected: {
+    label: "مرفوض",
+    className: "bg-red-700 text-red-100",
+  },
+};
+
+
+
 
   return (
-   <div className="flex-1 bg-[#101622] p-4 md:p-8 overflow-y-auto">
-  <h1 className="text-2xl font-bold text-white mb-6">سجل الفواتير</h1>
-  <div className="bg-[#161a22] rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+   <div className="flex-1 bg-[#101622]  overflow-y-auto">
+   <header className=" top-0 left-0 w-full h-16 flex items-center justify-between px-6 bg-[#111318] border-b border-[#1f2430] z-50">
+  <div>
+    <h2 className="text-white text-lg font-bold flex items-center gap-2">
+       سجل الفواتير
+    </h2>
+  </div>
+</header>
+  <div className="bg-[#161a22] rounded-xl m-9 shadow-sm border border-gray-700 overflow-hidden">
     <div className="overflow-x-auto">
       <table className="w-full text-right text-white">
         <thead className="bg-[#1c1f27]">
@@ -68,17 +93,20 @@ export default function InvoicesDashboard({ invoices: initialInvoices }) {
               <td className="px-6 py-4">{inv.type}</td>
               <td className="px-6 py-4">{inv.date}</td>
               <td className="px-6 py-4">{inv.amount}</td>
-              <td className="px-6 py-4">
-  {inv.status === "completed" ? (
-    <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-green-700 text-green-100">
-      مكتمل
+            <td className="px-6 py-4">
+  {statusMap[inv.status] ? (
+    <span
+      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${statusMap[inv.status].className}`}
+    >
+      {statusMap[inv.status].label}
     </span>
   ) : (
     <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-yellow-700 text-yellow-100">
-      معالجة AI
+      تحت المعالجة
     </span>
   )}
 </td>
+
 
               <td className="px-6 py-4">
                 {inv.imageUrl ? (

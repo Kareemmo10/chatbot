@@ -46,30 +46,33 @@ export default function InvoiceDetails() {
  const getStatusText = (status) => {
   switch (status) {
     case 1:
-            return "غير معروف";
-
+      return "غير معروف";
     case 2:
       return "مراجعة AI";
+    case 3:
+      return "معتمد";
+    case 4:
+      return "مرفوض"; // أضفنا المرفوض
     default:
-            return "مكتمل"; // أو "مدفوع" حسب ما تحب
-
+      return "غير معروف";
   }
 };
 
 const getStatusClasses = (status) => {
   switch (status) {
     case 1:
-            return "bg-blue-700 text-blue-100"; 
-
+      return "bg-blue-700 text-blue-100";
     case 2:
       return "bg-yellow-700 text-yellow-100";
     case 3:
-            return "bg-green-700 text-green-100";
-
+      return "bg-green-700 text-green-100";
+    case 4:
+      return "bg-red-700 text-red-100"; // ألوان المرفوض
     default:
       return "bg-gray-700 text-gray-100";
   }
 };
+
 
 
   return (
@@ -88,9 +91,12 @@ const getStatusClasses = (status) => {
         <p className="text-white text-3xl font-bold tracking-tight">
           تفاصيل الفاتورة {invoice.invoiceId}
         </p>
-       <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${getStatusClasses(invoice.status)}`}>
+      <span
+  className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${getStatusClasses(invoice.status)}`}
+>
   {getStatusText(invoice.status)}
 </span>
+
 
       </div>
     </div>
