@@ -1,4 +1,4 @@
-import { Send, Bot, LogOut, AlertCircle, Menu, Package } from "lucide-react"; // أضفنا أيقونة المراجعة
+import { Send, Bot, LogOut, AlertCircle, Menu, Package, LayoutDashboard } from "lucide-react"; // أضفنا أيقونة المراجعة
 import React, { useState } from "react";
 
 import { useAuth } from "../auth/AuthContext"; 
@@ -102,7 +102,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
         to="/prodacts"
         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
           ${
-            location.pathname === "/review"
+            location.pathname === "/prodacts"
               ? "bg-[#282e39] text-white"
               : "text-[#9da6b9] hoItemer:bg-[#282e39] hover:text-white"
           }`}
@@ -114,12 +114,12 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
         to="/dashbord"
         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
           ${
-            location.pathname === "/review"
+            location.pathname === "/dashbord"
               ? "bg-[#282e39] text-white"
               : "text-[#9da6b9] hoItemer:bg-[#282e39] hover:text-white"
           }`}
       >
-        <Package size={18} />
+        <LayoutDashboard size={18} />
         {isOpen && <span className="text-sm font-medium">الادارة</span>}
       </Link>
     </nav>
