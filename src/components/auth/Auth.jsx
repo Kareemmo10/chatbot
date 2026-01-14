@@ -81,38 +81,32 @@ export default function Auth() {
   };
 
   return (
-        <div className="flex justify-center items-center h-screen bg-[#101622] p-4">
-          
+    <div className="flex justify-center items-center min-h-screen bg-[#101622] p-4">
+      <div className="w-full md:w-[900px] h-auto md:h-[550px] bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row">
 
-      <div className="w-[900px] h-[550px] bg-white rounded-3xl overflow-hidden shadow-2xl relative flex">
-
-        {/*  SIDE PANEL */}
+        {/* SIDE PANEL */}
         <div
-  className={`
-    absolute top-0 h-full w-1/2
-    bg-[#181B21] text-white
-    flex flex-col justify-center items-center px-10
-    transition-all duration-700 ease-in-out
-    ${isLogin ? "left-0" : "left-1/2"}
-  `}
->
-
-
-          <h1 className="text-4xl font-bold mb-3">
+          className={`
+            hidden md:flex md:absolute md:top-0 md:h-full md:w-1/2
+            bg-[#181B21] text-white
+            flex-col justify-center items-center px-6 md:px-10 py-8 md:py-0
+            transition-all duration-700 ease-in-out
+            ${isLogin ? "md:left-0" : "md:left-1/2"}
+          `}
+        >
+          <h1 className="text-2xl md:text-4xl font-bold mb-3">
             {isLogin ? "مرحباً بعودتك!" : "أهلاً بك!"}
           </h1>
 
-          <p className="text-center opacity-90 mb-6">
+          <p className="text-center text-sm md:text-base opacity-90 mb-6">
             {isLogin
               ? "سجّل الدخول للتحدث الي بوت الفواتير ."
               : "أنشئ حساباً جديداً للتحدث مع بوت الفواتير ."}
           </p>
 
-          {/* <img src="/doctor.png" alt="" className="w-40 drop-shadow-2xl mb-6" /> */}
-
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="border-2 border-white px-12 py-2 rounded-full font-semibold hover:bg-white hover:text-blue-700 transition-all"
+            className="border-2 border-white px-8 md:px-12 py-2 rounded-full text-sm md:text-base font-semibold hover:bg-white hover:text-blue-700 transition-all"
           >
             {isLogin ? "إنشاء حساب" : "تسجيل دخول"}
           </button>
@@ -121,9 +115,10 @@ export default function Auth() {
         {/* WHITE FORM WRAPPER */}
         <div
           className={`
-            absolute h-full flex items-center justify-center w-1/2
+            w-full md:absolute md:h-full md:flex md:items-center md:justify-center md:w-1/2
             transition-all duration-700 ease-in-out
-            ${isLogin ? "right-0" : "left-0"}
+            p-6 md:p-0
+            ${isLogin ? "md:right-0" : "md:left-0"}
           `}
         >
 
@@ -131,11 +126,11 @@ export default function Auth() {
           <form
             onSubmit={handleLogin}
             className={`
-              w-[320px] transition-all duration-500
-              ${isLogin ? "opacity-100" : "opacity-0 pointer-events-none"}
+              w-full md:w-[320px] transition-all duration-500
+              ${isLogin ? "block md:opacity-100" : "hidden md:opacity-0 md:pointer-events-none"}
             `}
           >
-            <h2 className="text-3xl font-bold text-center mb-7 text-[#181B21]">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-7 text-[#181B21]">
               تسجيل دخول
             </h2>
 
@@ -144,7 +139,7 @@ export default function Auth() {
               placeholder="البريد الإلكتروني"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-gray-100 rounded-full mb-4 outline-none"
+              className="w-full p-3 bg-gray-100 rounded-full mb-4 text-sm outline-none"
             />
 
             <input
@@ -152,26 +147,38 @@ export default function Auth() {
               placeholder="كلمة السر"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-gray-100 rounded-full mb-6 outline-none"
+              className="w-full p-3 bg-gray-100 rounded-full mb-6 text-sm outline-none"
             />
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#181B21] hover:bg-[#1f212b] text-white rounded-full font-semibold"
+              className="w-full py-3 bg-[#181B21] hover:bg-[#1f212b] text-white rounded-full font-semibold text-sm md:text-base"
             >
               دخول
             </button>
+
+            {/* Mobile Toggle */}
+            <div className="md:hidden text-center mt-6">
+              <p className="text-gray-600 text-sm mb-3">أو</p>
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-600 font-semibold text-sm hover:text-blue-800"
+              >
+                إنشاء حساب جديد
+              </button>
+            </div>
           </form>
 
           {/* REGISTER FORM */}
           <form
             onSubmit={handleRegister}
             className={`
-              absolute w-[320px] transition-all duration-500
-              ${!isLogin ? "opacity-100" : "opacity-0 pointer-events-none"}
+              w-full md:absolute md:w-[320px] transition-all duration-500
+              ${!isLogin ? "block md:opacity-100" : "hidden md:opacity-0 md:pointer-events-none"}
             `}
           >
-            <h2 className="text-3xl font-bold text-center mb-7 text-[#181B21]">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-7 text-[#181B21]">
               إنشاء حساب
             </h2>
 
@@ -180,7 +187,7 @@ export default function Auth() {
               placeholder="الاسم الكامل"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full p-3 bg-gray-100 rounded-full mb-4 outline-none"
+              className="w-full p-3 bg-gray-100 rounded-full mb-4 text-sm outline-none"
             />
 
             <input
@@ -188,7 +195,7 @@ export default function Auth() {
               placeholder="البريد الإلكتروني"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-gray-100 rounded-full mb-4 outline-none"
+              className="w-full p-3 bg-gray-100 rounded-full mb-4 text-sm outline-none"
             />
 
             <input
@@ -196,7 +203,7 @@ export default function Auth() {
               placeholder="كلمة السر"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-gray-100 rounded-full mb-4 outline-none"
+              className="w-full p-3 bg-gray-100 rounded-full mb-4 text-sm outline-none"
             />
 
             <input
@@ -204,15 +211,27 @@ export default function Auth() {
               placeholder="تأكيد كلمة السر"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-3 bg-gray-100 rounded-full mb-6 outline-none"
+              className="w-full p-3 bg-gray-100 rounded-full mb-6 text-sm outline-none"
             />
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#181B21] hover:bg-[#1f212b] text-white rounded-full font-semibold"
+              className="w-full py-3 bg-[#181B21] hover:bg-[#1f212b] text-white rounded-full font-semibold text-sm md:text-base"
             >
               إنشاء حساب
             </button>
+
+            {/* Mobile Toggle */}
+            <div className="md:hidden text-center mt-6">
+              <p className="text-gray-600 text-sm mb-3">أو</p>
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-600 font-semibold text-sm hover:text-blue-800"
+              >
+                تسجيل الدخول
+              </button>
+            </div>
           </form>
 
         </div>

@@ -18,7 +18,7 @@ const toggleSidebar = () => setIsOpen(!isOpen);
   className={`h-screen flex flex-col justify-between
     bg-[#111318] border-l border-[#1f2430] text-white
     transition-all duration-300
-${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
+${isOpen ? "fixed top-0 right-0 w-44 z-40" : "relative w-18"}  `}
 >
   {/* الجزء العلوي */}
   <div>
@@ -29,7 +29,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
         className="flex items-center gap-3 px-3 py-2.5 rounded-lg
            "
       >
-        <Menu size={18} />
+        <Menu size={16} />
       </button>
 
       
@@ -67,7 +67,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
               : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
           }`}
       >
-        <Send size={18} />
+        <Send size={16} />
         {isOpen && <span className="text-sm font-medium">الشات</span>}
       </Link>
 
@@ -81,7 +81,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
               : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
           }`}
       >
-        <Bot size={18} />
+        <Bot size={16} />
         {isOpen && <span className="text-sm font-medium">سجل الفواتير</span>}
       </Link>
 
@@ -95,7 +95,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
               : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
           }`}
       >
-        <AlertCircle size={18} />
+        <AlertCircle size={16} />
         {isOpen && <span className="text-sm font-medium">مراجعة الفواتير</span>}
       </Link>
       <Link
@@ -107,7 +107,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
               : "text-[#9da6b9] hoItemer:bg-[#282e39] hover:text-white"
           }`}
       >
-        <Package size={18} />
+        <Package size={16} />
         {isOpen && <span className="text-sm font-medium">المنتجات</span>}
       </Link>
       <Link
@@ -119,7 +119,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
               : "text-[#9da6b9] hoItemer:bg-[#282e39] hover:text-white"
           }`}
       >
-        <LayoutDashboard size={18} />
+        <LayoutDashboard size={16} />
         {isOpen && <span className="text-sm font-medium">الادارة</span>}
       </Link>
     </nav>
@@ -132,7 +132,7 @@ ${isOpen ? "fixed top-0 right-0 w-50 z-40" : "relative w-20"}  `}
       className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full
         text-[#9da6b9] hover:bg-[#282e39] hover:text-white transition-colors"
     >
-      <LogOut size={18} />
+      <LogOut size={16} />
       {isOpen && <span className="text-sm font-medium">تسجيل الخروج</span>}
     </button>
   </div>

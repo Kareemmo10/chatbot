@@ -108,22 +108,22 @@ export default function Products() {
 
   return (
     <div className="flex flex-col flex-1 min-w-0 h-full bg-[#101622] text-white min-h-screen font-sans">
-      <header className="h-16 flex items-center justify-between px-6 bg-[#111318] border-b border-[#1f2430]">
-        <h2 className="text-white text-lg font-bold flex items-center gap-2">
+      <header className="h-16 flex items-center justify-between px-4 md:px-6 bg-[#111318] border-b border-[#1f2430]">
+        <h2 className="text-white text-lg md:text-xl font-bold flex items-center gap-2">
           <Package className="text-blue-500" /> إدارة المنتجات
         </h2>
         <button
   onClick={handleOpenAdd}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"
+  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold flex items-center gap-1.5"
 >
   <Plus size={14} /> إضافة منتج جديد
 </button>
 
       </header>
 
-      <main className="flex-1 overflow-y-auto p-6 md:px-8 space-y-6">
-<div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[#181b21] p-2.5 rounded-xl border border-[#1f2430]">
-          <div className="relative w-full sm:max-w-md">
+      <main className="flex-1 overflow-y-auto p-4 md:p-6 md:px-8 space-y-4 md:space-y-6">
+<div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-[#181b21] p-3 md:p-4 rounded-xl border border-[#1f2430]">
+          <div className="relative w-full md:max-w-md">
   <Search className="absolute right-3 top-3.5 h-4 w-4 text-[#9da6b9]" />
   <input
   type="text"
@@ -133,59 +133,56 @@ export default function Products() {
     setSearch(e.target.value);
     setPage(1);
   }}
-  className="bg-[#101622] text-white border border-[#1f2430] rounded-lg py-2 px-4 pr-10 pl-10 focus:outline-none focus:border-none placeholder-[#5e6676]"
+  className="bg-[#101622] text-white border border-[#1f2430] rounded-lg py-2 px-4 pr-10 pl-10 focus:outline-none focus:border-none placeholder-[#5e6676] w-full text-sm"
 />
 
 
 </div>
 
-          <div className="text-[#9da6b9] text-sm font-medium">
+          <div className="text-[#9da6b9] text-xs md:text-sm font-medium whitespace-nowrap">
             إجمالي المنتجات: <span className="text-white font-bold">{totalRecords}</span>
           </div>
         </div>
 
         {/* Products Table */}
-        <div className="bg-[#181b21] rounded-xl border border-[#1f2430] overflow-hidden">
+        <div className="bg-[#181b21] rounded-xl border border-[#1f2430] overflow-hidden w-full">
           <div className="overflow-x-auto">
-            <table className="w-full text-right">
-              <thead className="bg-[#111318] text-[#9da6b9] text-xs uppercase font-semibold">
+            <table className="w-full text-right text-xs md:text-sm">
+              <thead className="bg-[#111318] text-[#9da6b9] uppercase font-semibold">
                 <tr>
-                  <th className="px-6 py-4">اسم المنتج</th>
-                  <th className="px-6 py-4">الكود (SKU)</th>
-                  <th className="px-6 py-4">السعر</th>
-                  <th className="px-6 py-4">إجراءات</th>
+                  <th className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">اسم المنتج</th>
+                  <th className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap hidden sm:table-cell">الكود (SKU)</th>
+                  <th className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">السعر</th>
+                  <th className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">إجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1f2430]">
                 {loading
                   ? [...Array(5)].map((_, i) => (
                       <tr key={i} className="animate-pulse">
-                        <td className="px-4 py-3"><div className="h-4 bg-[#282e39] rounded w-32"></div></td>
-                        <td className="px-4 py-3"><div className="h-4 bg-[#282e39] rounded w-20"></div></td>
-                        <td className="px-4 py-3"><div className="h-4 bg-[#282e39] rounded w-16"></div></td>
-                        <td className="px-4 py-3"></td>
+                        <td className="px-3 md:px-6 py-2 md:py-3"><div className="h-4 bg-[#282e39] rounded w-32"></div></td>
+                        <td className="px-3 md:px-6 py-2 md:py-3 hidden sm:table-cell"><div className="h-4 bg-[#282e39] rounded w-20"></div></td>
+                        <td className="px-3 md:px-6 py-2 md:py-3"><div className="h-4 bg-[#282e39] rounded w-16"></div></td>
+                        <td className="px-3 md:px-6 py-2 md:py-3"></td>
                       </tr>
                     ))
                   : data.length > 0
                   ? data.map((product) => (
                       <tr key={product.id} className="hover:bg-[#282e39]/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-white flex items-center gap-3">
-                          {/* <div className="w-8 h-8 rounded-full bg-[#1f2430] flex items-center justify-center text-blue-500">
-                            <Package size={16} />
-                          </div> */}
+                        <td className="px-3 md:px-6 py-2 md:py-4 font-medium text-white">
                           {product.name}
                         </td>
-                        <td className="px-6 py-4">{product.code || <span className="text-[#5e6676] italic">--</span>}</td>
-                        <td className="px-6 py-4 text-emerald-400 font-bold">{product.defaultPrice?.toFixed(2)} SAR</td>
-                        <td className="px-6 py-4  flex gap-2">
-                          <button onClick={() => handleOpenEdit(product)} className="bg-blue-600 px-2 py-1 rounded text-white text-sm hover:bg-blue-700">تعديل</button>
-                          <button onClick={() => setProductToDelete(product)} className="bg-red-600 px-2 py-1 rounded text-white text-sm hover:bg-red-700">حذف</button>
+                        <td className="px-3 md:px-6 py-2 md:py-4 hidden sm:table-cell">{product.code || <span className="text-[#5e6676] italic">--</span>}</td>
+                        <td className="px-3 md:px-6 py-2 md:py-4 text-emerald-400 font-bold">{product.defaultPrice?.toFixed(2)} SAR</td>
+                        <td className="px-3 md:px-6 py-2 md:py-4 flex gap-2">
+                          <button onClick={() => handleOpenEdit(product)} className="bg-blue-600 px-2 py-1 rounded text-white text-xs hover:bg-blue-700">تعديل</button>
+                          <button onClick={() => setProductToDelete(product)} className="bg-red-600 px-2 py-1 rounded text-white text-xs hover:bg-red-700">حذف</button>
                         </td>
                       </tr>
                     ))
                   : (
                     <tr>
-                      <td colSpan={4} className="px-6 py-12 text-center text-[#5e6676]">
+                      <td colSpan={4} className="px-6 py-12 text-center text-[#5e6676] text-sm">
                         لا توجد منتجات مطابقة للبحث
                       </td>
                     </tr>
@@ -195,35 +192,35 @@ export default function Products() {
           </div>
 
           {/* Pagination */}
-          <div className="bg-[#111318] px-6 py-4 border-t border-[#1f2430] flex items-center justify-between">
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1 || loading} className="text-sm text-[#9da6b9] hover:text-white">السابق</button>
-            <span className="text-sm text-[#5e6676]">صفحة <span className="text-white font-bold">{page}</span> من <span className="text-white font-bold">{totalPages}</span></span>
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages || loading} className="text-sm text-[#9da6b9] hover:text-white">التالي</button>
+          <div className="bg-[#111318] px-4 md:px-6 py-2 md:py-4 border-t border-[#1f2430] flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1 || loading} className="text-xs md:text-sm text-[#9da6b9] hover:text-white disabled:opacity-50">السابق</button>
+            <span className="text-xs md:text-sm text-[#5e6676]">صفحة <span className="text-white font-bold">{page}</span> من <span className="text-white font-bold">{totalPages}</span></span>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages || loading} className="text-xs md:text-sm text-[#9da6b9] hover:text-white disabled:opacity-50">التالي</button>
           </div>
         </div>
       </main>
 
       {/* Add/Edit Modal */}
       {isDialogOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#181b21] rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-white text-lg font-bold mb-4">{currentProduct ? "تعديل المنتج" : "إضافة منتج"}</h3>
+            <h3 className="text-white text-lg md:text-xl font-bold mb-4">{currentProduct ? "تعديل المنتج" : "إضافة منتج"}</h3>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <label className="text-sm text-[#9da6b9]">اسم المنتج</label>
-                <input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-[#101622] border border-[#1f2430] rounded p-2 text-white" required />
+                <input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-[#101622] border border-[#1f2430] rounded p-2 text-white text-sm" required />
               </div>
               <div>
                 <label className="text-sm text-[#9da6b9]">الكود (اختياري)</label>
-                <input value={formData.code} onChange={(e) => setFormData({...formData, code: e.target.value})} className="w-full bg-[#101622] border border-[#1f2430] rounded p-2 text-white" placeholder="SKU-123" />
+                <input value={formData.code} onChange={(e) => setFormData({...formData, code: e.target.value})} className="w-full bg-[#101622] border border-[#1f2430] rounded p-2 text-white text-sm" placeholder="SKU-123" />
               </div>
               <div>
                 <label className="text-sm text-[#9da6b9]">السعر</label>
-                <input type="number" step="0.01" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="w-full bg-[#101622] border border-[#1f2430] rounded p-2 text-white" required />
+                <input type="number" step="0.01" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="w-full bg-[#101622] border border-[#1f2430] rounded p-2 text-white text-sm" required />
               </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button type="button" onClick={() => setIsDialogOpen(false)} className="bg-[#282e39] text-white px-4 py-2 rounded hover:bg-[#323846]">إلغاء</button>
-                <button type="submit" disabled={isSaving} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2">{isSaving && <Loader2 className="animate-spin w-4 h-4"/>} حفظ</button>
+              <div className="flex flex-col-reverse md:flex-row justify-end gap-2 mt-4">
+                <button type="button" onClick={() => setIsDialogOpen(false)} className="bg-[#282e39] text-white px-4 py-2 rounded hover:bg-[#323846] text-sm">إلغاء</button>
+                <button type="submit" disabled={isSaving} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2 text-sm">{isSaving && <Loader2 className="animate-spin w-4 h-4"/>} حفظ</button>
               </div>
             </form>
           </div>
@@ -232,13 +229,13 @@ export default function Products() {
 
       {/* Delete Confirmation */}
       {productToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#181a21] rounded-xl p-6 w-full max-w-sm text-center">
             <h3 className="text-white text-lg font-bold mb-2">هل أنت متأكد؟</h3>
-            <p className="text-[#9da6b9] mb-4">سيتم حذف المنتج <span className="font-bold text-white">{productToDelete.name}</span> نهائياً.</p>
-            <div className="flex justify-center gap-4">
-              <button onClick={() => setProductToDelete(null)} className="bg-[#282e39] text-white px-4 py-2 rounded hover:bg-[#323846]">إلغاء</button>
-              <button onClick={handleDelete} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">حذف</button>
+            <p className="text-[#9da6b9] text-sm mb-4">سيتم حذف المنتج <span className="font-bold text-white">{productToDelete.name}</span> نهائياً.</p>
+            <div className="flex flex-col md:flex-row justify-center gap-4">
+              <button onClick={() => setProductToDelete(null)} className="bg-[#282e39] text-white px-4 py-2 rounded hover:bg-[#323846] text-sm">إلغاء</button>
+              <button onClick={handleDelete} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm">حذف</button>
             </div>
           </div>
         </div>

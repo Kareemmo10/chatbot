@@ -6,9 +6,9 @@ import {
 
 // 1. مكونات مساعدة
 const StatCard = ({ title, value, color = "text-white" }) => (
-  <div className="bg-[#181b21] p-6 rounded-xl border border-[#1f2430] shadow-sm">
-    <p className="text-[#9da6b9] text-sm font-medium mb-2">{title}</p>
-    <h3 className={`text-3xl font-bold ${color}`}>{value}</h3>
+  <div className="bg-[#181b21] p-3 md:p-6 rounded-xl border border-[#1f2430] shadow-sm">
+    <p className="text-[#9da6b9] text-xs md:text-sm font-medium mb-2">{title}</p>
+    <h3 className={`text-lg md:text-2xl font-bold ${color}`}>{value}</h3>
   </div>
 );
 
@@ -61,7 +61,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 bg-[#101622] flex items-center justify-center h-screen">
+      <div className="flex-1 bg-[#101622] flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -69,8 +69,8 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="flex-1 bg-[#101622] flex items-center justify-center h-screen text-red-500">
-        خطأ: {error}
+      <div className="flex-1 bg-[#101622] flex items-center justify-center min-h-screen text-red-500 text-center p-4">
+        <div>خطأ: {error}</div>
       </div>
     );
   }
@@ -78,21 +78,21 @@ export default function DashboardPage() {
   if (!stats) return null;
 
   return (
-    <div className="flex-1 bg-[#101622]  text-white ">
+    <div className="flex-1 bg-[#101622] text-white w-full overflow-y-auto">
 
-     <header className=" top-0 left-0 w-full h-16 flex items-center justify-between px-6 bg-[#111318] border-b border-[#1f2430] z-50">
+     <header className="top-0 left-0 w-full h-16 flex items-center justify-between px-4 md:px-6 bg-[#111318] border-b border-[#1f2430] z-50">
   <div>
-    <h2 className="text-white text-lg font-bold flex items-center gap-2">
+    <h2 className="text-white text-lg md:text-xl font-bold flex items-center gap-2">
       لوحة التحكم
     </h2>
   </div>
 </header>
 
 
-      <main className="space-y-6 p-9">
+      <main className="space-y-4 md:space-y-6 p-4 md:p-9">
         {/* 1. Stat Cards */}
-                <p className="text-[#9da6b9] text-sm mt-1">أهلاً بك، إليك ملخص أداء النظام</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <p className="text-[#9da6b9] text-xs md:text-sm mt-1">أهلاً بك، إليك ملخص أداء النظام</p>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
 
           <StatCard title="إجمالي المبيعات" value={`${stats.totalSales.toLocaleString()} ر.س`} color="text-emerald-400" />
           <StatCard title="عدد الفواتير" value={stats.totalInvoices} />
@@ -101,12 +101,12 @@ export default function DashboardPage() {
         </div>
 
         {/* 2. Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           
           {/* Chart 1: Sales (Area Chart) */}
-          <div className="bg-[#181b21] p-6 rounded-xl border border-[#1f2430]">
-            <h3 className="text-lg font-bold mb-6 text-white">تحليل المبيعات (آخر 7 أيام)</h3>
-            <div className="h-[300px] w-full">
+          <div className="bg-[#181b21] p-4 md:p-6 rounded-xl border border-[#1f2430] overflow-hidden">
+            <h3 className="text-base md:text-lg font-bold mb-4 md:mb-6 text-white">تحليل المبيعات (آخر 7 أيام)</h3>
+            <div className="h-[250px] md:h-[300px] w-full">
               {stats.chartData && stats.chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={stats.chartData}>
@@ -117,34 +117,34 @@ export default function DashboardPage() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1f2430" vertical={false} />
-                    <XAxis dataKey="date" stroke="#5e6676" tick={{fill: '#9da6b9', fontSize: 12}} />
-                    <YAxis stroke="#5e6676" tick={{fill: '#9da6b9', fontSize: 12}} />
+                    <XAxis dataKey="date" stroke="#5e6676" tick={{fill: '#9da6b9', fontSize: 11}} />
+                    <YAxis stroke="#5e6676" tick={{fill: '#9da6b9', fontSize: 11}} width={40} />
                     <Tooltip contentStyle={{ backgroundColor: '#111318', borderColor: '#1f2430', color: '#fff' }} />
                     <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-full text-gray-500">لا توجد بيانات مبيعات</div>
+                <div className="flex items-center justify-center h-full text-gray-500 text-sm">لا توجد بيانات مبيعات</div>
               )}
             </div>
           </div>
 
           {/* Chart 2: Low Stock (Bar Chart) - جديد 🔥 */}
-          <div className="bg-[#181b21] p-6 rounded-xl border border-[#1f2430]">
-            <h3 className="text-lg font-bold mb-6 text-red-400">تنبيهات المخزون (الأقل كمية)</h3>
-            <div className="h-[300px] w-full">
+          <div className="bg-[#181b21] p-4 md:p-6 rounded-xl border border-[#1f2430] overflow-hidden">
+            <h3 className="text-base md:text-lg font-bold mb-4 md:mb-6 text-red-400">تنبيهات المخزون (الأقل كمية)</h3>
+            <div className="h-[250px] md:h-[300px] w-full">
                {stats.lowStockProducts && stats.lowStockProducts.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.lowStockProducts} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#1f2430" horizontal={false} />
-                    <XAxis type="number" stroke="#5e6676" tick={{fill: '#9da6b9'}} />
-                    <YAxis dataKey="name" type="category" width={100} stroke="#5e6676" tick={{fill: '#9da6b9', fontSize: 12}} />
+                    <XAxis type="number" stroke="#5e6676" tick={{fill: '#9da6b9', fontSize: 11}} />
+                    <YAxis dataKey="name" type="category" width={80} stroke="#5e6676" tick={{fill: '#9da6b9', fontSize: 10}} />
                     <Tooltip cursor={{fill: '#1f2430'}} contentStyle={{ backgroundColor: '#111318', borderColor: '#1f2430', color: '#fff' }} />
                     <Bar dataKey="stock" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={20} />
                   </BarChart>
                 </ResponsiveContainer>
                ) : (
-                <div className="flex items-center justify-center h-full text-green-500">المخزون تمام 👍</div>
+                <div className="flex items-center justify-center h-full text-green-500 text-sm">المخزون تمام 👍</div>
                )}
             </div>
           </div>
@@ -152,18 +152,18 @@ export default function DashboardPage() {
 
         {/* 3. Recent Invoices Table */}
         <div className="bg-[#181b21] rounded-xl border border-[#1f2430] overflow-hidden">
-          <div className="p-6 border-b border-[#1f2430]">
-            <h3 className="text-lg font-bold">أحدث الفواتير</h3>
+          <div className="p-4 md:p-6 border-b border-[#1f2430]">
+            <h3 className="text-base md:text-lg font-bold">أحدث الفواتير</h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-right text-sm">
-              <thead className="bg-[#111318] text-[#9da6b9] text-xs uppercase">
+            <table className="w-full text-right text-xs md:text-sm">
+              <thead className="bg-[#111318] text-[#9da6b9] uppercase">
                 <tr>
-                  <th className="px-6 py-4">رقم الفاتورة</th>
-                  <th className="px-6 py-4">المورد</th>
-                  <th className="px-6 py-4">التاريخ</th>
-                  <th className="px-6 py-4">القيمة</th>
-                  <th className="px-6 py-4">الحالة</th>
+                  <th className="px-2 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs">رقم</th>
+                  <th className="px-2 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs hidden sm:table-cell">المورد</th>
+                  <th className="px-2 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs">التاريخ</th>
+                  <th className="px-2 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs">المبلغ</th>
+                  <th className="px-2 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs">الحالة</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1f2430]">
@@ -171,14 +171,14 @@ export default function DashboardPage() {
                   const statusInfo = getStatusBadge(inv.status);
                   return (
                     <tr key={inv.id} className="hover:bg-[#1f2430]/50 transition duration-150">
-                      <td className="px-6 py-4 text-white font-medium">#{inv.invoiceNumber}</td>
-                      <td className="px-6 py-4">{inv.merchantName || 'غير معروف'}</td>
-                      <td className="px-6 py-4 text-[#9da6b9]">
+                      <td className="px-2 md:px-6 py-2 md:py-4 text-white font-medium whitespace-nowrap text-xs">#{inv.invoiceNumber}</td>
+                      <td className="px-2 md:px-6 py-2 md:py-4 hidden sm:table-cell truncate text-xs">{inv.merchantName || 'غير معروف'}</td>
+                      <td className="px-2 md:px-6 py-2 md:py-4 text-[#9da6b9] whitespace-nowrap text-xs">
                         {new Date(inv.date).toLocaleDateString('ar-EG')}
                       </td>
-                      <td className="px-6 py-4 font-bold text-white">{inv.amount} ر.س</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                      <td className="px-2 md:px-6 py-2 md:py-4 font-bold text-white whitespace-nowrap text-xs">{inv.amount}</td>
+                      <td className="px-2 md:px-6 py-2 md:py-4">
+                        <span className={`px-1 md:px-2 py-0.5 md:py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                           {statusInfo.label}
                         </span>
                       </td>
@@ -188,7 +188,7 @@ export default function DashboardPage() {
               </tbody>
             </table>
             {(!stats.latestInvoices || stats.latestInvoices.length === 0) && (
-              <div className="text-center py-6 text-gray-500">لا توجد فواتير حديثة</div>
+              <div className="text-center py-6 text-gray-500 text-sm">لا توجد فواتير حديثة</div>
             )}
           </div>
         </div>
