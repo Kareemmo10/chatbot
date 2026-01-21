@@ -1,5 +1,5 @@
 import { Send, Bot, LogOut, AlertCircle, Menu, Package, LayoutDashboard } from "lucide-react"; // أضفنا أيقونة المراجعة
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useAuth } from "../auth/AuthContext"; 
 import { useLocation, Link } from "react-router-dom";
@@ -9,7 +9,27 @@ export default function Sidebar({ activeTab, setActiveTab }) {
   const { logout } = useAuth();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-const toggleSidebar = () => setIsOpen(!isOpen);
+  const [profile, setProfile] = useState(null);
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  // Fetch Profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("https://nsaproject.runasp.net/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   
 
@@ -104,7 +124,7 @@ ${isOpen ? "fixed top-0 right-0 w-44 z-40" : "relative w-18"}  `}
           ${
             location.pathname === "/prodacts"
               ? "bg-[#282e39] text-white"
-              : "text-[#9da6b9] hoItemer:bg-[#282e39] hover:text-white"
+              : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
           }`}
       >
         <Package size={16} />
@@ -116,25 +136,48 @@ ${isOpen ? "fixed top-0 right-0 w-44 z-40" : "relative w-18"}  `}
           ${
             location.pathname === "/dashbord"
               ? "bg-[#282e39] text-white"
-              : "text-[#9da6b9] hoItemer:bg-[#282e39] hover:text-white"
+              : "text-[#9da6b9] hover:bg-[#282e39] hover:text-white"
           }`}
       >
         <LayoutDashboard size={16} />
         {isOpen && <span className="text-sm font-medium">الادارة</span>}
       </Link>
+      
+      
     </nav>
   </div>
 
   {/* Footer */}
   <div className="p-4 border-t border-[#1f2430]">
-    <button
-      onClick={logout}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full
-        text-[#9da6b9] hover:bg-[#282e39] hover:text-white transition-colors"
+   <Link
+  to="/profile"
+  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+    ${
+      location.pathname === "/profile" && isOpen
+        ? "bg-[#282e39] text-white"
+        : "text-[#9da6b9]"
+    }`}
+>
+  {profile?.profilePictureUrl ? (
+    <div
+      className={`w-7 h-7 rounded-full bg-center bg-cover flex-shrink-0`}
+      style={{ backgroundImage: `url(${profile.profilePictureUrl})` }}
+    ></div>
+  ) : (
+    <div
+      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+        isOpen ? "bg-blue-600" : "bg-transparent"
+      }`}
     >
-      <LogOut size={16} />
-      {isOpen && <span className="text-sm font-medium">تسجيل الخروج</span>}
-    </button>
+      {profile?.fullName?.charAt(0) || "U"}
+    </div>
+  )}
+
+  {isOpen && (
+    <span className="text-sm font-medium">{profile?.fullName || "البروفايل"}</span>
+  )}
+</Link>
+
   </div>
 </aside>
 

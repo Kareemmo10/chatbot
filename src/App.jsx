@@ -10,6 +10,7 @@ import InvoiceDetails from "./components/dashboard/InvoiceDetails";
 import { useState } from "react";
 import Products from "./components/prodact/Products";
 import DashboardPage from "./components/dashboard/DashboardPage";
+import ProfilePage from "./components/profile/ProfilePage";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -38,6 +39,7 @@ function App() {
       <Route path="/review" element={<InvoiceReviewPage invoices={invoices} setInvoices={setInvoices} />} />
       <Route path="/prodacts" element={<Products />} />
       <Route path="/dashbord" element={<DashboardPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
       <Route path="/invoice/:id" element={<InvoiceDetails />} />
     </Routes>
   </div>

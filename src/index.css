@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+html,
+body,
+#root {
+  @apply h-full;
+}
+
 @keyframes slideIn {
   0% {
     transform: translateY(20px);
@@ -84,5 +90,9 @@
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1); /* يخلي الأيقونة بيضاء */
 }
+
+
+
+
 
 
