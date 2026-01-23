@@ -14,6 +14,7 @@ export default function InvoiceReviewPage() {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [newProductsMap, setNewProductsMap] = useState({});
 
   /* ================= helpers ================= */
   const calculateLineTotal = (item) =>
@@ -78,16 +79,21 @@ const grandTotal = subtotal + tax;
   currency: data.currency || "USD",
   imagePath: data.imagePath,
   validationWarnings: data.validationWarnings || [],
-  totalTax: data.totalTax || 0, // <-- هنا
+  totalTax: data.totalTax || 0,
   items: (data.items || []).map((i) => ({
     id: i.id,
+    itemCode: i.itemCode || "", // Store itemCode from backend
     rawName: i.rawName,
-    productId: i.suggestedProductId || "",
+    standardizedName: i.standardizedName || "", // Store standardizedName
+    productId: i.suggestedProductId || null,
     aiName: i.suggestedProductName || "",
     quantity: i.qty ?? 1,
     price: i.unitPrice ?? 0,
   })),
 });
+
+      // Initialize newProductsMap to track which items are marked as new products
+      setNewProductsMap({});
 
     } catch {
       toast.error("خطأ في تحميل الفاتورة");
@@ -103,6 +109,19 @@ const grandTotal = subtotal + tax;
         i.id === itemId ? { ...i, [field]: value } : i
       ),
     }));
+  };
+
+  const toggleNewProduct = (itemId) => {
+    setNewProductsMap((prev) => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
+  };
+
+  const getNewProductDefaultName = (item) => {
+    return item.standardizedName && item.standardizedName.trim() 
+      ? item.standardizedName 
+      : item.rawName;
   };
 
   const handleQuickCreate = async (itemId) => {
@@ -136,9 +155,19 @@ const grandTotal = subtotal + tax;
  const handleApprove = async () => {
   if (!selectedInvoice) return;
 
-  const invalidItems = selectedInvoice.items.filter(i => !i.productId);
+  // Validate: items without suggestedProductId must have createNewProduct=true and newProductName filled
+  const invalidItems = selectedInvoice.items.filter((i) => {
+    if (i.productId === null || i.productId === "") {
+      // No product selected, must be creating new product
+      if (!newProductsMap[i.id]) return true; // Not marked as new product
+      const newName = newProductsMap[`${i.id}_name`];
+      if (!newName || newName.trim() === "") return true; // No name provided
+    }
+    return false;
+  });
+
   if (invalidItems.length > 0) {
-    toast.error("كل عنصر يجب أن يكون له منتج محدد");
+    toast.error("كل عنصر بدون منتج يجب أن يكون علامة كمنتج جديد مع اسم");
     return;
   }
 
@@ -149,17 +178,25 @@ const grandTotal = subtotal + tax;
       invoiceNumber: selectedInvoice.invoiceNumber,
       merchantName: selectedInvoice.merchantName,
       merchantVat: selectedInvoice.merchantVat,
-      buyerName: "Internal Buyer", // أو من عندك
+      buyerName: "Internal Buyer",
       buyerVat: "0000000000",
       invoiceDate: new Date(selectedInvoice.invoiceDate).toISOString(),
       totalAmount: Number(grandTotal),
       totalTax: Number(selectedInvoice.totalTax),
-      items: selectedInvoice.items.map(i => ({
-        productId: Number(i.productId),
-        fullName: i.rawName,
-        qty: Number(i.quantity),
-        unitPrice: Number(i.price),
-      })),
+      items: selectedInvoice.items.map((i) => {
+        const isNewProduct = newProductsMap[i.id];
+        const newProductName = newProductsMap[`${i.id}_name`] || "";
+        
+        return {
+          productId: isNewProduct ? null : Number(i.productId),
+          fullName: i.rawName,
+          qty: Number(i.quantity),
+          unitPrice: Number(i.price),
+          code: i.itemCode, // Map itemCode to code
+          createNewProduct: isNewProduct,
+          newProductName: isNewProduct ? newProductName : "",
+        };
+      }),
     };
 
     console.log("APPROVE PAYLOAD", payload);
@@ -180,6 +217,7 @@ const grandTotal = subtotal + tax;
       toast.success("تم اعتماد الفاتورة بنجاح");
       setInvoicesToReview(p => p.filter(i => i.id !== selectedInvoice.id));
       setSelectedInvoice(null);
+      setNewProductsMap({});
     } else {
       const err = await res.json();
       toast.error(err.message || "فشل الاعتماد");
@@ -346,29 +384,73 @@ const handleReject = async () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedInvoice.items.map((item)=>(
+                    {selectedInvoice.items.map((item)=>{
+                      const isNewProduct = newProductsMap[item.id];
+                      const newProductName = newProductsMap[`${item.id}_name`] || getNewProductDefaultName(item);
+                      const hasNoSuggestedProduct = !item.productId;
+
+                      return (
                       <tr key={item.id} className="border-t border-[#282e39]">
                         <td className="p-2">{item.rawName}</td>
                         <td className="p-2">
-  <div className="flex gap-1 items-center">
-    <select
-      value={item.productId}
-      onChange={(e) => handleItemChange(item.id, "productId", e.target.value)}
-      className="bg-[#161a22] p-1 rounded flex-1 min-w-[100px] max-w-[150px]"
-    >
-      <option value="">-- اختر --</option>
-      {allProducts.map((p) => (
-        <option key={p.id} value={p.id}>{p.name}</option>
-      ))}
-    </select>
-    <button
-      onClick={() => handleQuickCreate(item.id)}
-      className="p-2  text-white rounded"
-    >
-      <Plus size={14}/>
-    </button>
-  </div>
-</td>
+                          {hasNoSuggestedProduct ? (
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="checkbox" 
+                                  checked={isNewProduct || false}
+                                  onChange={() => toggleNewProduct(item.id)}
+                                  className="w-4 h-4 cursor-pointer"
+                                />
+                                <label className="text-xs cursor-pointer">إضافة كمنتج جديد</label>
+                              </div>
+                              {isNewProduct ? (
+                                <input
+                                  type="text"
+                                  placeholder="اسم المنتج الجديد"
+                                  value={newProductName}
+                                  onChange={(e) => 
+                                    setNewProductsMap((prev) => ({
+                                      ...prev,
+                                      [`${item.id}_name`]: e.target.value,
+                                    }))
+                                  }
+                                  className="bg-[#161a22] p-2 rounded text-sm w-full"
+                                />
+                              ) : (
+                                <select
+                                  value={item.productId || ""}
+                                  onChange={(e) => handleItemChange(item.id, "productId", e.target.value || null)}
+                                  className="bg-[#161a22] p-1 rounded w-full text-sm"
+                                >
+                                  <option value="">-- اختر --</option>
+                                  {allProducts.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                  ))}
+                                </select>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex gap-1 items-center">
+                              <select
+                                value={item.productId || ""}
+                                onChange={(e) => handleItemChange(item.id, "productId", e.target.value || null)}
+                                className="bg-[#161a22] p-1 rounded flex-1 min-w-[100px] max-w-[150px]"
+                              >
+                                <option value="">-- اختر --</option>
+                                {allProducts.map((p) => (
+                                  <option key={p.id} value={p.id}>{p.name}</option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => handleQuickCreate(item.id)}
+                                className="p-2 text-white rounded"
+                              >
+                                <Plus size={14}/>
+                              </button>
+                            </div>
+                          )}
+                        </td>
 
                         <td className="p-2 text-center">
                           <input type="number" value={item.quantity} onChange={(e)=>handleItemChange(item.id,'quantity',e.target.value)} className="bg-transparent w-16 text-center"/>
@@ -383,7 +465,8 @@ const handleReject = async () => {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>

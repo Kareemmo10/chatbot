@@ -9,6 +9,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("info");
   const [isEditingName, setIsEditingName] = useState(false);
   const [fullNameEdit, setFullNameEdit] = useState("");
   const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
@@ -22,13 +23,11 @@ export default function ProfilePage() {
 
   const token = localStorage.getItem("token");
 
-  // Handle Logout
   const handleLogout = () => {
     logout();
     navigate("/auth");
   };
 
-  // Fetch Profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -55,7 +54,6 @@ export default function ProfilePage() {
     fetchProfile();
   }, [token]);
 
-  // Update Name
   const handleSaveName = async () => {
     try {
       const res = await fetch(
@@ -79,7 +77,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Upload Avatar
   const handleUploadAvatar = async (file) => {
     try {
       const formData = new FormData();
@@ -100,7 +97,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Upload Company Logo
   const handleUploadCompanyLogo = async (file) => {
     try {
       const formData = new FormData();
@@ -124,7 +120,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Save Personal Info
   const handleSavePersonalInfo = async () => {
     try {
       const res = await fetch(
@@ -167,8 +162,8 @@ export default function ProfilePage() {
   return (
     <div className="flex w-full h-screen bg-[#101622] text-white">
       {/* Sidebar */}
-      <aside className="w-full md:w-72 flex flex-col gap-6 flex-shrink-0 overflow-y-auto p-4">
-        <div className="bg-[#111318] rounded-xl border border-[#282e39] p-4">
+      <aside className="w-72 flex-shrink-0 overflow-y-auto p-4 border-r border-[#282e39] sticky top-0 h-screen">
+        <div className="bg-[#111318] rounded-xl border border-[#282e39] p-4 space-y-6">
           <div className="flex gap-3 mb-6 p-2">
             <div
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-12 h-12 border-2 border-blue-500"
@@ -179,38 +174,45 @@ export default function ProfilePage() {
               <p className="text-[#9da6b9] text-xs font-normal">{profile.role}</p>
             </div>
           </div>
-         <nav className="flex flex-col gap-1">
-  <a
-    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600/20 text-blue-500 font-medium transition-all"
-    href="#info"
-  >
-    المعلومات الشخصية
-  </a>
-  
-  <a
-    className="flex items-center gap-3 px-4 py-3 rounded-lg text-[#9da6b9] hover:bg-[#282e39] transition-all"
-    href="#security"
-  >
-    الأمان
-  </a>
 
-  {/* زر تسجيل الخروج أو رابط آخر */}
-  <button
-    onClick={handleLogout}
-    className="flex items-center gap-3 px-4 py-3 border rounded-full text-red-500 bg-red-900/10 hover:bg-red-900/20 transition-all mt-4 w-full justify-center"
-  >
-    <LogOut size={16} />
-    تسجيل الخروج
-  </button>
-</nav>
+          <nav className="flex flex-col gap-1">
+            <button
+              onClick={() => setActiveTab("info")}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
+                activeTab === "info"
+                  ? "bg-blue-600/20 text-blue-500"
+                  : "text-[#9da6b9] hover:bg-[#282e39]"
+              }`}
+            >
+              المعلومات الشخصية
+            </button>
+            <button
+              onClick={() => setActiveTab("security")}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
+                activeTab === "security"
+                  ? "bg-blue-600/20 text-blue-500"
+                  : "text-[#9da6b9] hover:bg-[#282e39]"
+              }`}
+            >
+              الأمان
+            </button>
 
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-4 py-3 border rounded-full text-red-500 bg-red-900/10 hover:bg-red-900/20 transition-all mt-4 w-full justify-center"
+            >
+              <LogOut size={16} />
+              تسجيل الخروج
+            </button>
+          </nav>
         </div>
       </aside>
 
       {/* Content */}
       <div className="flex-1 flex flex-col gap-6 p-6 md:p-8 overflow-y-auto">
-        {/* Profile Header */}
-        <section id="info" className="bg-[#111318] rounded-xl border border-[#282e39] p-6 flex flex-col md:flex-row items-center gap-6">
+
+        {/* Header */}
+        <section className="bg-[#111318] rounded-xl border border-[#282e39] p-6 flex flex-col md:flex-row items-center gap-6">
           <div className="relative">
             <div
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-24 h-24 border-4 border-[#1c1f27] shadow-xl"
@@ -231,142 +233,151 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex flex-col justify-center gap-1">
-  <h2 className="text-2xl font-bold">{profile.fullName}</h2>
-  <p className="text-[#9da6b9]">{profile.email}</p>
-  <p className="text-slate-500 dark:text-[#9da6b9] text-xs font-normal">
-عضو منذ يناير  2026   </p>
-</div>
-
-
-          
-        </section>
-
-        {/* Personal Info Section */}
-        <section className="bg-[#111318] rounded-xl border border-[#282e39] ">
-          <div className="px-6 py-4 border-b border-[#282e39]">
-            <h2 className="text-white text-xl font-bold">المعلومات الشخصية</h2>
-          </div>
-          <div className="p-6">
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-white text-sm font-semibold">الاسم الأول</label>
-                <input
-                  type="text"
-                  disabled={!isEditingPersonalInfo}
-                  value={personalInfo.firstName}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
-                  placeholder="أدخل اسمك الأول"
-                  className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-white text-sm font-semibold">اسم الثاني</label>
-                <input
-                  type="text"
-                  disabled={!isEditingPersonalInfo}
-                  value={personalInfo.lastName}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
-                  placeholder="أدخل اسم العائلة"
-                  className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-white text-sm font-semibold">البريد الإلكتروني</label>
-                <input
-                  type="email"
-                  dir="ltr"
-                  disabled={!isEditingPersonalInfo}
-                  value={personalInfo.email}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
-                  placeholder="email@example.com"
-                  className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-white text-sm font-semibold">رقم الهاتف</label>
-                <input
-                  type="tel"
-                  dir="ltr"
-                  disabled={!isEditingPersonalInfo}
-                  value={personalInfo.phoneNumber}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, phoneNumber: e.target.value })}
-                  placeholder="+966 5x xxx xxxx"
-                  className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-
-              <div className="md:col-span-2 flex flex-col gap-2">
-                <label className="text-white text-sm font-semibold">اسم الشركة</label>
-                <input
-                  type="text"
-                  disabled={!isEditingPersonalInfo || profile.role !== "CompanyAdmin"}
-                  value={personalInfo.companyName}
-                  onChange={(e) => setPersonalInfo({ ...personalInfo, companyName: e.target.value })}
-                  placeholder="أدخل اسم شركتك"
-                  className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-              </div>
-            </form>
-          </div>
-          <div className="px-6 py-4 bg-[#1c1f27] flex justify-end gap-3 border-t border-[#282e39]">
-            {isEditingPersonalInfo ? (
-              <>
-                <button onClick={() => setIsEditingPersonalInfo(false)} className="px-6 h-10 rounded-lg text-[#9da6b9] font-bold hover:bg-[#282e39] transition-all">
-                  إلغاء
-                </button>
-                <button onClick={handleSavePersonalInfo} className="px-8 h-10 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
-                  حفظ التغييرات
-                </button>
-              </>
-            ) : (
-              <button onClick={() => setIsEditingPersonalInfo(true)} className="px-8 h-10 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
-                تعديل
-              </button>
-            )}
+            <h2 className="text-2xl font-bold">{profile.fullName}</h2>
+            <p className="text-[#9da6b9]">{profile.email}</p>
+            <p className="text-slate-500 dark:text-[#9da6b9] text-xs font-normal">
+              عضو منذ يناير 2026
+            </p>
           </div>
         </section>
 
-        {/* Security Section */}
-        <section id="security" className="bg-[#111318] rounded-xl border border-[#282e39] ">
-          <div className="px-6 py-4 border-b border-[#282e39]">
-            <h2 className="text-white text-xl font-bold">الأمان وكلمة المرور</h2>
-          </div>
-          <div className="p-6 flex flex-col gap-6">
-            {/* Change Password */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <p className="text-white font-bold mb-1">تغيير كلمة المرور</p>
-                <p className="text-[#9da6b9] text-sm">نوصي بتغيير كلمة المرور بانتظام لحماية حسابك.</p>
-              </div>
-              <button 
-                className="w-full md:w-auto px-6 h-10 rounded-lg border border-blue-600 text-blue-500 font-bold hover:bg-blue-600/10 transition-all whitespace-nowrap"
-              >
-                تحديث كلمة المرور
-              </button>
-            </div>
+        {/* Tabs */}
+        {activeTab === "info" && (
+  <section className="bg-[#111318] rounded-xl border border-[#282e39] ">
+    
+    <div className="px-6 py-4 border-b border-[#282e39] bg-[#1c1f27]">
+      <h2 className="text-white text-xl font-bold">المعلومات الشخصية</h2>
+    </div>
 
-            {/* Divider */}
-            {/* <div className="h-px bg-[#282e39]"></div> */}
+    <div className="p-6">
+      <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div className="flex flex-col gap-2">
+          <label className="text-white text-sm font-semibold">الاسم الأول</label>
+          <input
+            type="text"
+            disabled={!isEditingPersonalInfo}
+            value={personalInfo.firstName}
+            onChange={(e) => setPersonalInfo({ ...personalInfo, firstName: e.target.value })}
+            placeholder="أدخل اسمك الأول"
+            className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </div>
 
-            {/* 2FA Toggle */}
-            {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <p className="text-white font-bold mb-1">المصادقة الثنائية (2FA)</p>
-                <p className="text-[#9da6b9] text-sm">أضف طبقة أمان إضافية إلى حسابك باستخدام رموز التحقق.</p>
-              </div>
-              <button
-                className={`w-full md:w-auto relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 bg-slate-700`}
-              >
-                <span
-                  className={`translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
-                ></span>
-              </button>
-            </div> */}
-          </div>
-        </section>
+        <div className="flex flex-col gap-2">
+          <label className="text-white text-sm font-semibold">اسم الثاني</label>
+          <input
+            type="text"
+            disabled={!isEditingPersonalInfo}
+            value={personalInfo.lastName}
+            onChange={(e) => setPersonalInfo({ ...personalInfo, lastName: e.target.value })}
+            placeholder="أدخل اسم العائلة"
+            className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-white text-sm font-semibold">البريد الإلكتروني</label>
+          <input
+            type="email"
+            dir="ltr"
+            disabled={!isEditingPersonalInfo}
+            value={personalInfo.email}
+            onChange={(e) => setPersonalInfo({ ...personalInfo, email: e.target.value })}
+            placeholder="email@example.com"
+            className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-white text-sm font-semibold">رقم الهاتف</label>
+          <input
+            type="tel"
+            dir="ltr"
+            disabled={!isEditingPersonalInfo}
+            value={personalInfo.phoneNumber}
+            onChange={(e) => setPersonalInfo({ ...personalInfo, phoneNumber: e.target.value })}
+            placeholder="+966 5x xxx xxxx"
+            className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </div>
+
+        <div className="md:col-span-2 flex flex-col gap-2">
+          <label className="text-white text-sm font-semibold">اسم الشركة</label>
+          <input
+            type="text"
+            disabled={!isEditingPersonalInfo || profile.role !== "CompanyAdmin"}
+            value={personalInfo.companyName}
+            onChange={(e) => setPersonalInfo({ ...personalInfo, companyName: e.target.value })}
+            placeholder="أدخل اسم شركتك"
+            className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+        </div>
+
+      </form>
+    </div>
+
+    <div className="px-6 py-4 bg-[#1c1f27] flex justify-end gap-3 border-t border-[#282e39]">
+      {isEditingPersonalInfo ? (
+        <>
+          <button
+            onClick={() => setIsEditingPersonalInfo(false)}
+            className="px-6 h-10 rounded-lg text-[#9da6b9] font-bold hover:bg-[#282e39] transition-all"
+          >
+            إلغاء
+          </button>
+          <button
+            onClick={handleSavePersonalInfo}
+            className="px-8 h-10 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20"
+          >
+            حفظ التغييرات
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={() => setIsEditingPersonalInfo(true)}
+          className="px-8 h-10 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20"
+        >
+          تعديل
+        </button>
+      )}
+    </div>
+
+  </section>
+)}
+
+
+       {activeTab === "security" && (
+  <section className="bg-[#111318] rounded-xl border border-[#282e39] overflow-hidden">
+
+    {/* Header */}
+    <div className="px-6 py-4 border-b border-[#282e39] bg-[#1c1f27]">
+      <h2 className="text-white text-xl font-bold">الأمان وكلمة المرور</h2>
+    </div>
+
+    {/* Body */}
+    <div className="p-6 flex flex-col gap-6">
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <p className="text-white font-bold mb-1">تغيير كلمة المرور</p>
+          <p className="text-[#9da6b9] text-sm">نوصي بتغيير كلمة المرور بانتظام لحماية حسابك.</p>
+        </div>
+
+        <button 
+          onClick={() => setShowPasswordModal(true)}
+          className="w-full md:w-auto px-6 h-10 rounded-lg border border-blue-600 text-blue-500 font-bold hover:bg-blue-600/10 transition-all whitespace-nowrap"
+        >
+          تحديث كلمة المرور
+        </button>
+      </div>
+
+    </div>
+
+  </section>
+)}
+
+
       </div>
     </div>
   );
