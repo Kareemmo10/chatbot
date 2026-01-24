@@ -271,24 +271,29 @@ export default function Auth() {
             )}
 
             <div className="flex gap-2 mb-4">
-              <input
-                type="password"
-                placeholder="كلمة السر"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-1/2 p-2.5 bg-[#1C1F26] text-white rounded-full text-xs outline-none border border-[#262B34]"
-              />
-              {errors.password && <p className="text-red-500 text-xs mb-2">{errors.password}</p>}
+  <div className="flex-1 flex flex-col">
+    <input
+      type="password"
+      placeholder="كلمة السر"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="w-full p-2.5 bg-[#1C1F26] text-white rounded-full text-xs outline-none border border-[#262B34]"
+    />
+    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+  </div>
 
-              <input
-                type="password"
-                placeholder="تأكيدها"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-1/2 p-2.5 bg-[#1C1F26] text-white rounded-full text-xs outline-none border border-[#262B34]"
-              />
-              {errors.confirmPassword && <p className="text-red-500 text-xs mb-2">{errors.confirmPassword}</p>}
-            </div>
+  <div className="flex-1 flex flex-col">
+    <input
+      type="password"
+      placeholder="تأكيدها"
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+      className="w-full p-2.5 bg-[#1C1F26] text-white rounded-full text-xs outline-none border border-[#262B34]"
+    />
+    {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+  </div>
+</div>
+
 
             {errors.general && <p className="text-red-500 text-xs mb-2">{errors.general}</p>}
 
