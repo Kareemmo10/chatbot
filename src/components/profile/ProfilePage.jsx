@@ -263,13 +263,13 @@ export default function ProfilePage() {
     const isExpired = new Date(inv.expiresAt) < new Date();
     if (inv.isUsed)
       return (
-        <span className="flex items-center gap-1 text-green-400 bg-green-400/10 px-2 py-1 rounded-full text-xs">
+        <span className="flex items-center gap-1 text-green-400 bg-green-400/10 px-1 py-1 rounded-full text-xs">
           <CheckCircle2 size={12} /> تم الاستخدام
         </span>
       );
     if (isExpired)
       return (
-        <span className="flex items-center gap-1 text-red-400 bg-red-400/10 px-2 py-1 rounded text-xs">
+        <span className="flex items-center gap-1 text-red-400 bg-red-400/10 px-1 py-1 rounded text-xs">
           <XCircle size={12} /> منتهية
         </span>
       );
@@ -550,7 +550,7 @@ export default function ProfilePage() {
                   onClick={() => setShowPasswordForm(!showPasswordForm)}
                   className="w-full md:w-auto px-6 h-10 rounded-lg border border-blue-600 text-blue-500 font-bold hover:bg-blue-600/10 transition-all whitespace-nowrap"
                 >
-                  تحديث كلمة المرور
+                  تغيير كلمة المرور
                 </button>
               </div>
 
@@ -687,7 +687,7 @@ export default function ProfilePage() {
                 </button>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm text-right">
+                <table className="w-full text-sm ">
                   <thead className="bg-[#1c1f27] text-gray-400">
                     <tr>
                       <th className="p-4 font-medium">البريد الإلكتروني</th>
