@@ -27,6 +27,8 @@ export default function ProfilePage() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("info");
   const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
+  
+  // تهيئة القيم بـ strings فارغة لتجنب تحذير React
   const [personalInfo, setPersonalInfo] = useState({
     firstName: "",
     lastName: "",
@@ -63,12 +65,18 @@ export default function ProfilePage() {
         const res = await fetch(`${API_BASE}/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        
+        if (res.status === 401) {
+            handleLogout(); // توجيه للخروج إذا انتهت الجلسة
+            return;
+        }
+
         if (!res.ok) throw new Error("فشل في جلب بيانات البروفايل");
         const data = await res.json();
         setProfile(data);
         setPersonalInfo({
-          firstName: data.fullName.split(" ")[0] || "",
-          lastName: data.fullName.split(" ")[1] || "",
+          firstName: data.fullName?.split(" ")[0] || "",
+          lastName: data.fullName?.split(" ")[1] || "",
           email: data.email || "",
           phoneNumber: data.phoneNumber || "",
           companyName: data.company?.name || "",
@@ -138,11 +146,33 @@ export default function ProfilePage() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+        // 🔥🔥🔥 التعديل الجوهري هنا: تصحيح أسماء الحقول لتطابق الـ Backend DTO
+        body: JSON.stringify({ 
+            currentPassword: currentPassword, 
+            newPassword: newPassword, 
+            confirmNewPassword: confirmPassword // كان confirmPassword وتصحح لـ confirmNewPassword
+        }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "حدث خطأ");
+
+      if (!res.ok) {
+        // التعامل مع أنواع الأخطاء المختلفة
+        let errorMsg = data.message || "حدث خطأ أثناء تغيير كلمة المرور";
+
+        if (typeof data === "string") {
+          errorMsg = data; // الرسالة النصية المباشرة (مثل: ممنوع التكرار)
+        } else if (Array.isArray(data)) {
+          errorMsg = data.map((e) => e.description).join("\n"); // أخطاء Identity
+        } else if (data.errors) {
+          errorMsg = Object.values(data.errors).flat().join("\n"); // أخطاء Validation
+        }
+
+        throw new Error(errorMsg);
+      }
+
       toast.success(data.message || "تم تغيير كلمة المرور بنجاح");
+      // تصفير الحقول
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -188,13 +218,10 @@ export default function ProfilePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ targetEmail }), // تأكد إنه اسم الحقل مضبوط
+        body: JSON.stringify({ targetEmail }),
       });
 
       const data = await res.json();
-      console.log("Response from API:", data); // هتطبع كل حاجة
-      console.log("Status:", res.status); // هتعرف الحالة بالضبط
-      console.log("StatusText:", res.statusText);
 
       if (res.ok) {
         toast.success("تم إنشاء الدعوة بنجاح");
@@ -202,7 +229,7 @@ export default function ProfilePage() {
         setTargetEmail("");
         fetchInvitations();
       } else {
-        toast.error(data.message || JSON.stringify(data));
+        toast.error(data.message || (typeof data === 'string' ? data : "فشل إنشاء الدعوة"));
       }
     } catch (err) {
       console.error(err);
@@ -302,7 +329,7 @@ export default function ProfilePage() {
               onClick={() => setActiveTab("security")}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${activeTab === "security" ? "bg-blue-600/20 text-blue-500" : "text-[#9da6b9] hover:bg-[#282e39]"}`}
             >
-              الأمان
+              الأمان و كلمة المرور
             </button>
             <button
               onClick={() => {
@@ -378,7 +405,7 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     disabled={!isEditingPersonalInfo}
-                    value={personalInfo.firstName}
+                    value={personalInfo.firstName || ""} 
                     onChange={(e) =>
                       setPersonalInfo({
                         ...personalInfo,
@@ -398,7 +425,7 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     disabled={!isEditingPersonalInfo}
-                    value={personalInfo.lastName}
+                    value={personalInfo.lastName || ""}
                     onChange={(e) =>
                       setPersonalInfo({
                         ...personalInfo,
@@ -419,7 +446,7 @@ export default function ProfilePage() {
                     type="email"
                     dir="ltr"
                     disabled={!isEditingPersonalInfo}
-                    value={personalInfo.email}
+                    value={personalInfo.email || ""}
                     onChange={(e) =>
                       setPersonalInfo({
                         ...personalInfo,
@@ -440,7 +467,7 @@ export default function ProfilePage() {
                     type="tel"
                     dir="ltr"
                     disabled={!isEditingPersonalInfo}
-                    value={personalInfo.phoneNumber}
+                    value={personalInfo.phoneNumber || ""}
                     onChange={(e) =>
                       setPersonalInfo({
                         ...personalInfo,
@@ -462,7 +489,7 @@ export default function ProfilePage() {
                     disabled={
                       !isEditingPersonalInfo || profile.role !== "CompanyAdmin"
                     }
-                    value={personalInfo.companyName}
+                    value={personalInfo.companyName || ""}
                     onChange={(e) =>
                       setPersonalInfo({
                         ...personalInfo,
@@ -504,7 +531,7 @@ export default function ProfilePage() {
         )}
 
         {activeTab === "security" && (
-          <section className="bg-[#111318] rounded-xl border border-[#282e39] overflow-hidden">
+          <section className="bg-[#111318] rounded-xl border border-[#282e39] ">
             <div className="px-6 py-4 border-b border-[#282e39] bg-[#1c1f27]">
               <h2 className="text-white text-xl font-bold">
                 الأمان و كلمة المرور
@@ -551,7 +578,7 @@ export default function ProfilePage() {
                     className="w-full rounded-lg border border-[#3b4354] bg-[#1c1f27] text-white h-12 px-4 focus:ring-2 focus:ring-blue-500"
                   />
 
-                  <div className="flex gap-3 justify-end">
+                  <div className="flex gap-3  justify-end">
                     <button
                       onClick={() => setShowPasswordForm(false)}
                       className="px-6 h-10 rounded-lg text-[#9da6b9] font-bold hover:bg-[#282e39] transition-all"
@@ -705,12 +732,12 @@ export default function ProfilePage() {
                           </td>
                           <td className="p-4 text-gray-400">
                             {new Date(inv.createdAt).toLocaleDateString(
-                              "ar-EG",
+                              "ar-EG"
                             )}
                           </td>
                           <td className="p-4 text-gray-400">
                             {new Date(inv.expiresAt).toLocaleDateString(
-                              "ar-EG",
+                              "ar-EG"
                             )}
                           </td>
                           <td className="p-4">{getStatusBadge(inv)}</td>
