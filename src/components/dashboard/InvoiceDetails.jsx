@@ -235,9 +235,9 @@ export default function InvoiceDetails() {
         });
         if (!res.ok) throw new Error("فشل تحميل البيانات");
         const response = await res.json();
-        // الـ API يرجع البيانات في response.data
-        const invoice = response.data || response;
-        setInvoice(invoice);
+        // الـ API يرجع البيانات في response.data أو مباشرة
+        const invoiceData = response.data || response;
+        setInvoice(invoiceData);
       } catch (err) {
         setError(err.message);
         console.error("خطأ في تحميل الفاتورة:", err);
@@ -256,21 +256,33 @@ export default function InvoiceDetails() {
 
   if (error) return <p className="text-red-500 text-center text-xl mt-10">{error}</p>;
 
-  const ai = invoice.aiData || {};
+  // استخراج بيانات الـ AI
+  const ai = invoice?.aiData || {};
 
+  // 🔥 التعديل هنا: تصحيح الـ Mapping بناءً على أرقام الـ Enum في الباك إند
+  // 0:Pending, 1:Processing, 2:NeedsReview, 3:Completed, 4:Failed, 5:Rejected
   const getStatusText = (status) => {
-    const statuses = { 1: "غير معروف", 2: "مراجعة AI", 3: "معتمد", 4: "مرفوض" };
-    return statuses[status] || "غير معروف";
+    switch (status) {
+      case 0: return "قيد الانتظار";
+      case 1: return "جاري المعالجة (AI)";
+      case 2: return "يرجى المراجعة";
+      case 3: return "معتمد";
+      case 4: return "فشل المعالجة";
+      case 5: return "مرفوض";
+      default: return "غير معروف";
+    }
   };
 
   const getStatusClasses = (status) => {
-    const classes = {
-      1: "bg-blue-700 text-blue-100",
-      2: "bg-yellow-700 text-yellow-100",
-      3: "bg-green-700 text-green-100",
-      4: "bg-red-700 text-red-100"
-    };
-    return classes[status] || "bg-gray-700 text-gray-100";
+    switch (status) {
+      case 0: return "bg-gray-600 text-gray-100";   // Pending
+      case 1: return "bg-blue-600 text-blue-100";   // Processing
+      case 2: return "bg-yellow-600 text-yellow-100"; // NeedsReview
+      case 3: return "bg-green-600 text-green-100"; // Completed
+      case 4: return "bg-red-600 text-red-100";     // Failed
+      case 5: return "bg-red-800 text-red-200";     // Rejected
+      default: return "bg-gray-700 text-gray-100";
+    }
   };
 
   return (
@@ -289,16 +301,19 @@ export default function InvoiceDetails() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div className="flex flex-wrap items-center gap-4">
             <h1 className="text-white text-xl md:text-3xl font-bold tracking-tight">
-              تفاصيل الفاتورة {invoice?.invoiceId}
+              تفاصيل الفاتورة #{invoice?.invoiceId}
             </h1>
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusClasses(invoice?.status)}`}>
+            
+            {/* Status Badge */}
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${getStatusClasses(invoice?.status)}`}>
               {getStatusText(invoice?.status)}
             </span>
-            {/* عرض درجة الثقة (Confidence Score) */}
-            <div className="flex items-center gap-1 bg-gray-800 px-3 py-1 rounded-full border border-gray-600">
+
+            {/* Confidence Score */}
+            <div className="flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-600 shadow-sm">
                 <span className="text-[10px] text-gray-400">دقة الـ AI :</span>
-                <span className={`text-xs font-bold ${(ai?.ConfidenceScore || 0) > 0.8 ? 'text-green-400' : 'text-orange-400'}`}>
-                    {((ai?.ConfidenceScore || 0) * 100).toFixed(0)}%
+                <span className={`text-xs font-bold ${ (invoice?.confidenceScore || 0) > 0.8 ? 'text-green-400' : 'text-orange-400' }`}>
+                    {((invoice?.confidenceScore || 0) * 100).toFixed(0)}%
                 </span>
             </div>
           </div>
@@ -311,18 +326,17 @@ export default function InvoiceDetails() {
               <div className="bg-[#161a22] p-6 rounded-xl border border-[#282e39]">
                 <h3 className="text-gray-400 text-xs font-bold uppercase mb-4">البائع (من)</h3>
                 <div className="space-y-2 text-sm text-gray-300">
-                  <p className="font-bold text-lg text-white">{ai?.MerchantName || "غير متوفر"}</p>
-                  <p className="opacity-80">{ai?.MerchantAddress || "العنوان غير متوفر"}</p>
-                  {ai?.MerchantVat && <p className="text-blue-400">الرقم الضريبي: {ai.MerchantVat}</p>}
+                  <p className="font-bold text-lg text-white">{invoice?.merchantName || "غير متوفر"}</p>
+                  {/* استخدمنا بيانات الفاتورة المباشرة لو الـ AI داتا ناقصة */}
+                  {invoice?.merchantVat && <p className="text-blue-400 font-mono">الرقم الضريبي: {invoice.merchantVat}</p>}
                 </div>
               </div>
 
               <div className="bg-[#161a22] p-6 rounded-xl border border-[#282e39]">
                 <h3 className="text-gray-400 text-xs font-bold uppercase mb-4">المشتري (إلى)</h3>
                 <div className="space-y-2 text-sm text-gray-300">
-                  <p className="font-bold text-lg text-white">{ai?.BuyerName || "غير متوفر"}</p>
-                  <p className="opacity-80">{ai?.BuyerAddress || "العنوان غير متوفر"}</p>
-                  {ai?.BuyerVat && <p className="text-blue-400">الرقم الضريبي: {ai.BuyerVat}</p>}
+                  <p className="font-bold text-lg text-white">{invoice?.buyerName || "غير متوفر"}</p>
+                  {invoice?.buyerVat && <p className="text-blue-400 font-mono">الرقم الضريبي: {invoice.buyerVat}</p>}
                 </div>
               </div>
             </div>
@@ -341,14 +355,20 @@ export default function InvoiceDetails() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#282e39]">
-                    {ai?.Items?.map((item, idx) => (
+                    {/* fallback to empty array if no items */}
+                    {(ai?.Items || []).map((item, idx) => (
                       <tr key={idx} className="hover:bg-[#1c212b] transition-colors">
-                        <td className="py-4 px-4 text-white font-medium">{item.FullName || item.Name}</td>
-                        <td className="py-4 px-4">{item.Qty} {item.Unit}</td>
+                        <td className="py-4 px-4 text-white font-medium">{item.FullName || item.Name || "صنف غير مسمى"}</td>
+                        <td className="py-4 px-4">{item.Qty}</td>
                         <td className="py-4 px-4">{item.UnitPrice?.toFixed(2)} {ai?.Currency}</td>
                         <td className="py-4 px-4 text-left font-bold text-white">{item.LineTotal?.toFixed(2)} {ai?.Currency}</td>
                       </tr>
                     ))}
+                    {(ai?.Items || []).length === 0 && (
+                        <tr>
+                            <td colSpan="4" className="py-4 text-center text-gray-500">لا توجد أصناف مسجلة في تفاصيل الـ AI</td>
+                        </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -359,6 +379,7 @@ export default function InvoiceDetails() {
           <div className="space-y-6">
             <div className="bg-[#161a22] p-6 rounded-xl border border-[#282e39]">
               <h3 className="text-lg font-semibold text-white mb-4">صورة الفاتورة</h3>
+              {/* تأكدنا من تمرير الرابط بشكل صحيح */}
               <InvoiceImage imagePath={invoice?.imagePath} />
             </div>
 
@@ -367,20 +388,23 @@ export default function InvoiceDetails() {
               <div className="space-y-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-400">تاريخ الفاتورة:</span>
-                  <span className="text-white font-medium">{ai?.InvoiceDate || "غير متوفر"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">طريقة الدفع:</span>
-                  <span className="text-white font-medium">{ai?.PaymentMethod || "كاش"}</span>
+                  <span className="text-white font-medium">
+                    {invoice?.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString('ar-EG') : "غير متوفر"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">نوع العملية:</span>
-                  <span className="text-white font-medium">{ai?.InvoiceType === 'Sales' ? 'مبيعات' : 'مشتريات'}</span>
+                  <span className="text-white font-medium">
+                    {invoice?.userInvoiceType === 'Sales' ? 'مبيعات' : (invoice?.userInvoiceType === 'Purchase' ? 'مشتريات' : invoice?.userInvoiceType || "غير محدد")}
+                  </span>
                 </div>
-                <div className="pt-2 border-t border-[#282e39]">
-                    <p className="text-[10px] text-gray-500 mb-1 italic">ملاحظة الـ AI:</p>
-                    <p className="text-xs text-gray-400 leading-relaxed">{ai?.ConfidenceReason || "لم يتم توفير معلومات"}</p>
-                </div>
+                {/* Confidence Reason */}
+                {ai?.ConfidenceReason && (
+                    <div className="pt-2 border-t border-[#282e39]">
+                        <p className="text-[10px] text-gray-500 mb-1 italic">ملاحظة الـ AI:</p>
+                        <p className="text-xs text-gray-400 leading-relaxed">{ai.ConfidenceReason}</p>
+                    </div>
+                )}
               </div>
             </div>
 
@@ -388,18 +412,14 @@ export default function InvoiceDetails() {
             <div className="bg-[#161a22] p-6 rounded-xl border border-[#282e39] bg-gradient-to-b from-[#161a22] to-[#1a202a]">
               <h3 className="text-lg font-semibold text-white mb-4">الملخص المالي</h3>
               <div className="space-y-3 text-sm text-gray-300">
-                <div className="flex justify-between italic">
-                  <span>الإجمالي (بدون ضريبة)</span>
-                  <span>{(ai?.TotalExcludingVAT || 0).toFixed(2)} {ai?.Currency || "SAR"}</span>
-                </div>
                 <div className="flex justify-between text-blue-400">
-                  <span>إجمالي الضريبة (15%)</span>
-                  <span>{(ai?.TotalTax || 0).toFixed(2)} {ai?.Currency || "SAR"}</span>
+                  <span>إجمالي الضريبة</span>
+                  <span>{(invoice?.totalTax || 0).toFixed(2)} {invoice?.currency || "SAR"}</span>
                 </div>
                 <div className="border-t border-[#282e39] my-2" />
                 <div className="flex justify-between text-xl font-bold text-white">
                   <span>الإجمالي النهائي</span>
-                  <span className="text-green-500">{(ai?.TotalAmount || 0).toFixed(2)} {ai?.Currency || "SAR"}</span>
+                  <span className="text-green-500">{(invoice?.totalAmount || 0).toFixed(2)} {invoice?.currency || "SAR"}</span>
                 </div>
               </div>
             </div>
