@@ -1,14 +1,11 @@
-
 import React, { useEffect, useState } from "react";
-import { AlertCircle, Loader2, Loader2Icon, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, Loader2Icon, Plus, Trash2 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const API_BASE = "https://nsaproject.runasp.net/api";
 
 export default function InvoiceReviewPage() {
-  const token = localStorage.getItem("token");
-
   const [invoicesToReview, setInvoicesToReview] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [allProducts, setAllProducts] = useState([]);
@@ -26,15 +23,20 @@ export default function InvoiceReviewPage() {
       0
     ) || 0;
 
-  // داخل الكومبوننت، بعد تحديد selectedInvoice
-const subtotal = calculateSubtotal();
-const tax = Number(selectedInvoice?.totalTax || 0);
-const grandTotal = subtotal + tax;
+  const subtotal = calculateSubtotal();
+  const tax = Number(selectedInvoice?.totalTax || 0);
+  const grandTotal = subtotal + tax;
 
-
+  const getNewProductDefaultName = (item) =>
+    item.standardizedName && item.standardizedName.trim()
+      ? item.standardizedName
+      : item.rawName;
 
   /* ================= API ================= */
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
     const fetchInvoices = async () => {
       try {
         const res = await fetch(`${API_BASE}/Invoices/review-list`, {
@@ -46,19 +48,21 @@ const grandTotal = subtotal + tax;
         toast.error("فشل تحميل قائمة الفواتير");
       }
     };
-    if (token) fetchInvoices();
-  }, [token]);
+
+    fetchInvoices();
+  }, []);
 
   const loadInvoiceDetails = async (id) => {
+    const token = localStorage.getItem("token");
+    if (!token) return toast.error("التوكن غير موجود، سجل دخول مجددًا");
+
     setLoading(true);
     try {
-      const res = await fetch(
-        `${API_BASE}/Invoices/${id}/review-details`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await fetch(`${API_BASE}/Invoices/${id}/review-details`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
 
-      // جمع كل المنتجات الجديدة المقترحة
       setAllProducts((prev) => {
         const suggestedProds = (data.items || [])
           .filter((i) => i.suggestedProductId)
@@ -71,30 +75,28 @@ const grandTotal = subtotal + tax;
       });
 
       setSelectedInvoice({
-  id: data.invoiceId,
-  invoiceNumber: data.invoiceNumber || "",
-  invoiceDate: data.invoiceDate?.split("T")[0] || "",
-  merchantName: data.merchantName || "",
-  merchantVat: data.merchantVat || "",
-  currency: data.currency || "USD",
-  imagePath: data.imagePath,
-  validationWarnings: data.validationWarnings || [],
-  totalTax: data.totalTax || 0,
-  items: (data.items || []).map((i) => ({
-    id: i.id,
-    itemCode: i.itemCode || "", // Store itemCode from backend
-    rawName: i.rawName,
-    standardizedName: i.standardizedName || "", // Store standardizedName
-    productId: i.suggestedProductId || null,
-    aiName: i.suggestedProductName || "",
-    quantity: i.qty ?? 1,
-    price: i.unitPrice ?? 0,
-  })),
-});
+        id: data.invoiceId,
+        invoiceNumber: data.invoiceNumber || "",
+        invoiceDate: data.invoiceDate?.split("T")[0] || "",
+        merchantName: data.merchantName || "",
+        merchantVat: data.merchantVat || "",
+        currency: data.currency || "USD",
+        imagePath: data.imagePath,
+        validationWarnings: data.validationWarnings || [],
+        totalTax: data.totalTax || 0,
+        items: (data.items || []).map((i) => ({
+          id: i.id,
+          itemCode: i.itemCode || "",
+          rawName: i.rawName,
+          standardizedName: i.standardizedName || "",
+          productId: i.suggestedProductId || null,
+          aiName: i.suggestedProductName || "",
+          quantity: i.qty ?? 1,
+          price: i.unitPrice ?? 0,
+        })),
+      });
 
-      // Initialize newProductsMap to track which items are marked as new products
       setNewProductsMap({});
-
     } catch {
       toast.error("خطأ في تحميل الفاتورة");
     } finally {
@@ -118,16 +120,17 @@ const grandTotal = subtotal + tax;
     }));
   };
 
-  const getNewProductDefaultName = (item) => {
-    return item.standardizedName && item.standardizedName.trim() 
-      ? item.standardizedName 
-      : item.rawName;
-  };
-
   const handleQuickCreate = async (itemId) => {
+    const token = localStorage.getItem("token");
+    if (!token) return toast.error("التوكن غير موجود، سجل دخول مجددًا");
+
     const name = prompt("اسم المنتج الجديد:");
     if (!name) return;
-    const payload = { name, price: 0, code: `AUTO-${Math.floor(Math.random() * 10000)}` };
+    const payload = {
+      name,
+      price: 0,
+      code: `AUTO-${Math.floor(Math.random() * 10000)}`,
+    };
     try {
       const res = await fetch(`${API_BASE}/Products/quick-create`, {
         method: "POST",
@@ -152,124 +155,140 @@ const grandTotal = subtotal + tax;
     }));
   };
 
- const handleApprove = async () => {
-  if (!selectedInvoice) return;
+  const handleApprove = async () => {
+    if (!selectedInvoice) return;
 
-  // Validate: items without suggestedProductId must have createNewProduct=true and newProductName filled
-  const invalidItems = selectedInvoice.items.filter((i) => {
-    if (i.productId === null || i.productId === "") {
-      // No product selected, must be creating new product
-      if (!newProductsMap[i.id]) return true; // Not marked as new product
-      const newName = newProductsMap[`${i.id}_name`];
-      if (!newName || newName.trim() === "") return true; // No name provided
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("التوكن غير موجود أو انتهت الجلسة، يرجى تسجيل الدخول مجددًا");
+      return;
     }
-    return false;
-  });
 
-  if (invalidItems.length > 0) {
-    toast.error("كل عنصر بدون منتج يجب أن يكون علامة كمنتج جديد مع اسم");
-    return;
-  }
+    // Fill default names for new products if missing
+    const itemsWithDefaults = selectedInvoice.items.map((i) => {
+      const isNewProduct = newProductsMap[i.id] || !i.productId;
+      const newProductName =
+        newProductsMap[`${i.id}_name`] ||
+        (isNewProduct ? getNewProductDefaultName(i) : "");
 
-  setActionLoading(true);
+      return { ...i, isNewProduct, newProductName };
+    });
 
-  try {
-    const payload = {
-      invoiceNumber: selectedInvoice.invoiceNumber,
-      merchantName: selectedInvoice.merchantName,
-      merchantVat: selectedInvoice.merchantVat,
-      buyerName: "Internal Buyer",
-      buyerVat: "0000000000",
-      invoiceDate: new Date(selectedInvoice.invoiceDate).toISOString(),
-      totalAmount: Number(grandTotal),
-      totalTax: Number(selectedInvoice.totalTax),
-      items: selectedInvoice.items.map((i) => {
-        const isNewProduct = newProductsMap[i.id];
-        const newProductName = newProductsMap[`${i.id}_name`] || "";
-        
-        return {
-          productId: isNewProduct ? null : Number(i.productId),
+    setNewProductsMap((prev) => {
+      const updated = { ...prev };
+      itemsWithDefaults.forEach((i) => {
+        if (i.isNewProduct) updated[`${i.id}_name`] = i.newProductName;
+      });
+      return updated;
+    });
+
+    setActionLoading(true);
+    try {
+      const payload = {
+        invoiceNumber: selectedInvoice.invoiceNumber,
+        merchantName: selectedInvoice.merchantName,
+        merchantVat: selectedInvoice.merchantVat,
+        buyerName: "Internal Buyer",
+        buyerVat: "0000000000",
+        invoiceDate: new Date(selectedInvoice.invoiceDate).toISOString(),
+        totalAmount: Number(grandTotal),
+        totalTax: Number(selectedInvoice.totalTax),
+        currency: selectedInvoice.currency || "SAR",
+        items: itemsWithDefaults.map((i) => ({
+          productId: i.isNewProduct ? null : Number(i.productId),
           fullName: i.rawName,
+          code: i.itemCode || `AUTO-${Math.floor(Math.random() * 10000)}`,
+          createNewProduct: i.isNewProduct,
+          newProductName: i.isNewProduct ? i.newProductName : "",
           qty: Number(i.quantity),
           unitPrice: Number(i.price),
-          code: i.itemCode, // Map itemCode to code
-          createNewProduct: isNewProduct,
-          newProductName: isNewProduct ? newProductName : "",
-        };
-      }),
-    };
+        })),
+      };
 
-    console.log("APPROVE PAYLOAD", payload);
+      console.log("APPROVE PAYLOAD", payload);
 
-    const res = await fetch(
-      `${API_BASE}/Invoices/${selectedInvoice.id}/approve`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    if (res.ok) {
-      toast.success("تم اعتماد الفاتورة بنجاح");
-      setInvoicesToReview(p => p.filter(i => i.id !== selectedInvoice.id));
-      setSelectedInvoice(null);
-      setNewProductsMap({});
-    } else {
-      const err = await res.json();
-      toast.error(err.message || "فشل الاعتماد");
-    }
-  } catch {
-    toast.error("مشكلة في الاتصال بالسيرفر");
-  } finally {
-    setActionLoading(false);
-  }
-};
-
-const handleReject = async () => {
-  if (!selectedInvoice) return;
-
-  setActionLoading(true);
-
-  try {
-    const res = await fetch(
-      `${API_BASE}/Invoices/${selectedInvoice.id}/reject`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (res.ok) {
-      toast.success("تم رفض الفاتورة");
-      setInvoicesToReview((p) =>
-        p.filter((i) => i.id !== selectedInvoice.id)
+      const res = await fetch(
+        `${API_BASE}/Invoices/${selectedInvoice.id}/approve`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
       );
-      setSelectedInvoice(null);
-    } else {
-      const err = await res.json();
-      toast.error(err.message || "فشل رفض الفاتورة");
+
+      // 🔥 [التعديل هنا] معالجة انتهاء الجلسة 401
+      if (res.status === 401) {
+        toast.error("انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجددًا");
+        localStorage.removeItem("token");
+        setTimeout(() => (window.location.href = "/login"), 2000);
+        return;
+      }
+
+      if (res.ok) {
+        toast.success("تم اعتماد الفاتورة بنجاح");
+        setInvoicesToReview((p) =>
+          p.filter((i) => i.id !== selectedInvoice.id)
+        );
+        setSelectedInvoice(null);
+        setNewProductsMap({});
+      } else {
+        const err = await res.json();
+        toast.error(err.message || "فشل الاعتماد");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("مشكلة في الاتصال بالسيرفر");
+    } finally {
+      setActionLoading(false);
     }
-  } catch {
-    toast.error("مشكلة اتصال بالسيرفر");
-  } finally {
-    setActionLoading(false);
-  }
-};
+  };
 
 
+  const handleReject = async () => {
+    if (!selectedInvoice) return;
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("التوكن غير موجود أو انتهت الجلسة، يرجى تسجيل الدخول مجددًا");
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(
+        `${API_BASE}/Invoices/${selectedInvoice.id}/reject`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        toast.success("تم رفض الفاتورة");
+        setInvoicesToReview((p) =>
+          p.filter((i) => i.id !== selectedInvoice.id)
+        );
+        setSelectedInvoice(null);
+      } else {
+        const err = await res.json();
+        toast.error(err.message || "فشل رفض الفاتورة");
+      }
+    } catch {
+      toast.error("مشكلة اتصال بالسيرفر");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   /* ================= UI ================= */
   return (
     <div className="min-h-screen flex bg-[#0f172a] text-white" dir="rtl">
       <ToastContainer position="top-left" />
-
       {/* ===== Review List ===== */}
       <div className="w-35 bg-[#111318] border-r border-[#282e39] overflow-y-auto">
         <div className="p-5 font-bold border-b border-[#282e39]">فواتير المراجعة</div>
@@ -287,15 +306,15 @@ const handleReject = async () => {
 
       {/* ===== Main ===== */}
       <main className="flex-1 p-9 overflow-y-auto">
-       {!selectedInvoice ? (
-  <div className="h-full flex flex-col items-center justify-center text-[#9da6b9] gap-3">
-    <Loader2Icon className="animate-spin text-gray-400" size={40} />
-    <p className="text-sm font-medium">اختر فاتورة للمراجعة</p>
-  </div>
-) : loading ? (
-  <div className="h-full flex items-center justify-center">
-    <Loader2Icon className="animate-spin" size={48} />
-  </div>
+        {!selectedInvoice ? (
+          <div className="h-full flex flex-col items-center justify-center text-[#9da6b9] gap-3">
+            <Loader2Icon className="animate-spin text-gray-400" size={40} />
+            <p className="text-sm font-medium">اختر فاتورة للمراجعة</p>
+          </div>
+        ) : loading ? (
+          <div className="h-full flex items-center justify-center">
+            <Loader2Icon className="animate-spin" size={48} />
+          </div>
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Invoice Image */}
